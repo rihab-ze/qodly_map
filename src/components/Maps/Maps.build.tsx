@@ -2,7 +2,7 @@ import { useEnhancedNode } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useRef } from 'react';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css'; 
+import 'leaflet/dist/leaflet.css';
 import { IMapsProps } from './Maps.config';
 
 const Maps: FC<IMapsProps> = ({
@@ -39,11 +39,13 @@ const Maps: FC<IMapsProps> = ({
     return () => {
       if (map) map.remove();
     };
-  }, [zoom, markerDragging, marker, popup, mapDragging,message]);
+  }, [zoom, markerDragging, marker, popup, mapDragging, message]);
 
   return (
     <span ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={{ height: style?.height }}></div>
+      <div ref={mapRef} style={{ height: style?.height }}>
+        {' '}
+      </div>
     </span>
   );
 };
