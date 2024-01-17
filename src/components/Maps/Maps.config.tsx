@@ -66,7 +66,6 @@ export default {
     message: '',
   },
 } as T4DComponentConfig<IMapsProps>;
-debugger;
 
 export interface IMapsProps extends webforms.ComponentProps {
   zoom: number;

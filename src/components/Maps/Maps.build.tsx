@@ -2,8 +2,7 @@ import { useEnhancedNode } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useRef } from 'react';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css'; // Import Leaflet CSS
-
+import 'leaflet/dist/leaflet.css'; 
 import { IMapsProps } from './Maps.config';
 
 const Maps: FC<IMapsProps> = ({
@@ -32,7 +31,7 @@ const Maps: FC<IMapsProps> = ({
       }).addTo(map);
       if (marker) {
         const marker = L.marker([51.505, -0.09], { draggable: markerDragging }).addTo(map);
-        if (popup) marker.bindPopup(message).openPopup();
+        if (popup && message) marker.bindPopup(message).openPopup();
       }
     }
 
