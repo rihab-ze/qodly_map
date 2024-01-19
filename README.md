@@ -6,7 +6,7 @@ Map Component for Qodly studio using [leaftletJs](https://leafletjs.com) and [Op
 
 The Map Component is designed to provide an interactive and customizable map experience for Qodly studio. Leveraging the power of LeafletJS and OpenStreetMap, it allows you to integrate dynamic maps with ease.
 
-[map](https://github.com/rihab-ze/qodly_map/tree/main/public/map.png)
+[map](https://github.com/rihab-ze/qodly_map/tree/main/public/Maps.png)
 
 | Name       | Type             | Description                                       |
 | ---------- | ---------------- | ------------------------------------------------- |
