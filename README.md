@@ -6,7 +6,7 @@ Map Component for Qodly studio using [leaftletJs](https://leafletjs.com) and [Op
 
 The Map Component is designed to provide an interactive and customizable map experience for Qodly studio. Leveraging the power of LeafletJS and OpenStreetMap, it allows you to integrate dynamic maps with ease.
 
-[map](https://github.com/rihab-ze/qodly_map/blob/develop/public/Maps.png)
+![map](https://github.com/rihab-ze/qodly_map/blob/develop/public/Maps.png)
 
 | Name       | Type             | Description                                       |
 | ---------- | ---------------- | ------------------------------------------------- |
@@ -25,5 +25,7 @@ The Map Component is designed to provide an interactive and customizable map exp
 | Address    | Object           | Yes                   | Will contain the value of Longitude and latitude |
 
 Some example of data that can be used : 
-
+```
 [{latitude : "31.792305849269",longitude : "-7.080168000000015"}]
+
+```
