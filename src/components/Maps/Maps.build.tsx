@@ -13,6 +13,7 @@ const Maps: FC<IMapsProps> = ({
   markerDragging,
   mapDragging,
   message,
+  multipleMarker,
   className,
   classNames = [],
 }) => {
@@ -29,7 +30,7 @@ const Maps: FC<IMapsProps> = ({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
-      if (marker) {
+      if (marker || multipleMarker) {
         const marker = L.marker([51.505, -0.09], { draggable: markerDragging }).addTo(map);
         if (popup && message) marker.bindPopup(message).openPopup();
       }

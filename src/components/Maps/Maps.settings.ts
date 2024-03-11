@@ -27,6 +27,12 @@ const commonSettings: TSetting[] = [
     defaultValue: true,
   },
   {
+    key: 'multipleMarker',
+    label: 'Multiple marker',
+    type: ESetting.CHECKBOX,
+    defaultValue: false,
+  },
+  {
     key: 'markerDragging',
     label: 'Marker dragging',
     type: ESetting.CHECKBOX,

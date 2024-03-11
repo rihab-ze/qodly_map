@@ -62,6 +62,7 @@ export default {
     marker: true,
     animation: true,
     popup: false,
+    multipleMarker: false,
     mapDragging: true,
     message: '',
   },
@@ -75,4 +76,5 @@ export interface IMapsProps extends webforms.ComponentProps {
   popup: boolean;
   mapDragging: boolean;
   message: string;
+  multipleMarker: boolean;
 }
