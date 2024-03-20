@@ -30,7 +30,10 @@ const Maps: FC<IMapsProps> = ({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
-      if (marker || multipleMarker) {
+      if (multipleMarker) {
+        L.marker([51.505, -0.09]).addTo(map);
+        L.marker([51.505, -0.14]).addTo(map);
+      } else if (marker) {
         const marker = L.marker([51.505, -0.09], { draggable: markerDragging }).addTo(map);
         if (popup && message) marker.bindPopup(message).openPopup();
       }
@@ -40,7 +43,7 @@ const Maps: FC<IMapsProps> = ({
     return () => {
       if (map) map.remove();
     };
-  }, [zoom, markerDragging, marker, popup, mapDragging, message]);
+  }, [zoom, markerDragging, marker, popup, mapDragging, message, multipleMarker]);
 
   return (
     <span ref={connect} style={style} className={cn(className, classNames)}>
