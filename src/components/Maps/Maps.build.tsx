@@ -4,16 +4,17 @@ import { FC, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { IMapsProps } from './Maps.config';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 const Maps: FC<IMapsProps> = ({
   style,
-  marker,
   popup,
   zoom,
   markerDragging,
   mapDragging,
-  message,
-  multipleMarker,
+  markerTypes,
   className,
   classNames = [],
 }) => {
@@ -21,7 +22,6 @@ const Maps: FC<IMapsProps> = ({
     connectors: { connect },
   } = useEnhancedNode();
   const mapRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     let map: L.Map | null = null;
     if (mapRef.current) {
@@ -30,12 +30,15 @@ const Maps: FC<IMapsProps> = ({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
-      if (multipleMarker) {
-        L.marker([51.505, -0.09]).addTo(map);
-        L.marker([51.505, -0.14]).addTo(map);
-      } else if (marker) {
+      if (markerTypes == 'multiple') {
+        var markers = L.markerClusterGroup();
+        markers.addLayer(L.marker([51.505, -0.09]));
+        markers.addLayer(L.marker([51.505, -0.13]));
+        markers.addLayer(L.marker([51.505, -0.2]));
+        map.addLayer(markers);
+      } else if (markerTypes == 'one') {
         const marker = L.marker([51.505, -0.09], { draggable: markerDragging }).addTo(map);
-        if (popup && message) marker.bindPopup(message).openPopup();
+        if (popup) marker.bindPopup('your message here').openPopup();
       }
     }
 
@@ -43,14 +46,14 @@ const Maps: FC<IMapsProps> = ({
     return () => {
       if (map) map.remove();
     };
-  }, [zoom, markerDragging, marker, popup, mapDragging, message, multipleMarker]);
+  }, [zoom, markerDragging, popup, mapDragging, markerTypes]);
 
   return (
-    <span ref={connect} style={style} className={cn(className, classNames)}>
+    <div ref={connect} style={style} className={cn(className, classNames)}>
       <div ref={mapRef} style={{ height: style?.height }}>
         {' '}
       </div>
-    </span>
+    </div>
   );
 };
 

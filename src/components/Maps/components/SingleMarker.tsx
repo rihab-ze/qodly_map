@@ -9,16 +9,16 @@ interface ISingleMarkerProps extends webforms.ComponentProps {
   zoom: number;
   markerDragging: boolean;
   animation: boolean;
-  marker: boolean;
-  message: string;
+  marker: string;
   mapDragging: boolean;
-  data: LocationData;
-  handleDataChange: (value: LocationData) => void;
+  data: LoactionAndPopup;
+  handleDataChange: (value: LoactionAndPopup) => void;
 }
 
-interface LocationData {
+interface LoactionAndPopup {
   longitude: number;
   latitude: number;
+  popupMessage: HTMLElement | null;
 }
 
 const SingleMarker: FC<ISingleMarkerProps> = ({
@@ -29,7 +29,6 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
   markerDragging,
   animation,
   mapDragging,
-  message,
   data,
   handleDataChange,
   className,
@@ -49,17 +48,21 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map.current);
-      if (marker) {
+      if (marker == 'one') {
         markers.current = L.marker([+data.latitude, +data.longitude], {
           draggable: markerDragging,
         }).addTo(map.current);
-        if (popup && message) markers.current.bindPopup(message).openPopup();
+        if (popup) {
+          const popUpMessage = data.popupMessage as HTMLElement;
+          markers.current.bindPopup(popUpMessage);
+        }
         // Attach event listener to listen for map moveend
         markers.current.on('moveend', (event) => {
           const newCenter = (event.target as L.Marker).getLatLng();
           data = {
             longitude: newCenter.lng,
             latitude: newCenter.lat,
+            popupMessage: data.popupMessage,
           };
           handleDataChange(data);
         });
@@ -69,26 +72,29 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
     return () => {
       if (map) map.current?.remove();
     };
-  }, [markerDragging, zoom, map, message, mapDragging, popup]);
+  }, [markerDragging, zoom, map, mapDragging, popup]);
 
   useEffect(() => {
     map.current?.flyTo([+data.latitude, +data.longitude], zoom, {
       animate: animation,
     });
-    if (map.current && marker) {
+    if (map.current && marker == 'one') {
       markers.current?.setLatLng({
         lat: data.latitude,
         lng: data.longitude,
       });
 
-      if (popup && message) markers.current?.bindPopup(message).openPopup();
+      if (popup) {
+        const popUpMessage = data.popupMessage as HTMLElement;
+        markers.current?.bindPopup(popUpMessage);
+      }
     }
   }, [data]);
 
   return (
-    <span ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={{ height: '400px' }} />
-    </span>
+    <div ref={connect} style={style} className={cn(className, classNames)}>
+      <div ref={mapRef} style={{ height: style?.height }} />
+    </div>
   );
 };
 

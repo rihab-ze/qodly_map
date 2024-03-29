@@ -6,28 +6,29 @@ import { IMapsProps } from './Maps.config';
 import MultipleMarker from './components/MultipleMarker';
 import SingleMarker from './components/SingleMarker';
 
-interface LocationData {
+interface LoactionAndPopup {
   longitude: number;
   latitude: number;
+  popupMessage: HTMLElement | null;
 }
 const Maps: FC<IMapsProps> = ({
   style,
   popup,
-  marker,
   zoom,
   markerDragging,
   animation,
   mapDragging,
-  message,
-  multipleMarker,
+  markerTypes,
+  distance,
   className,
   classNames = [],
 }) => {
   const { connect } = useRenderer();
-  const [value1, setValue1] = useState<LocationData[]>([{ longitude: 0, latitude: 0 }]);
-  const [value, setValue] = useState({
+  const [value1, setValue1] = useState<LoactionAndPopup[]>([]);
+  const [value, setValue] = useState<LoactionAndPopup>({
     longitude: 0,
     latitude: 0,
+    popupMessage: null,
   });
 
   const {
@@ -36,13 +37,11 @@ const Maps: FC<IMapsProps> = ({
   useEffect(() => {
     if (!ds) return;
     const listener = async (/* event */) => {
-      if (multipleMarker) {
-        const v = await ds.getValue<LocationData[]>();
-        if (v) {
-          setValue1(v);
-        }
+      if (markerTypes == 'multiple') {
+        const v = await ds.getValue<LoactionAndPopup[]>();
+        if (v) setValue1(v);
       } else {
-        const v = await ds.getValue<LocationData>();
+        const v = await ds.getValue<LoactionAndPopup>();
         if (v) {
           setValue(v);
         }
@@ -55,14 +54,21 @@ const Maps: FC<IMapsProps> = ({
     };
   }, [ds]);
 
-  const handleDataChange = (newValue: LocationData) => {
+  const handleDataChange = (newValue: LoactionAndPopup) => {
     ds.setValue<object>(null, newValue);
   };
 
   return (
-    <span ref={connect} style={style} className={cn(className, classNames)}>
-      {multipleMarker ? (
-        <MultipleMarker data={value1} zoom={zoom} mapDragging={mapDragging} />
+    <div ref={connect} style={style} className={cn(className, classNames)}>
+      {markerTypes == 'multiple' ? (
+        <MultipleMarker
+          data={value1}
+          zoom={zoom}
+          mapDragging={mapDragging}
+          popup={popup}
+          distance={distance}
+          style={style}
+        />
       ) : (
         <SingleMarker
           data={value}
@@ -70,13 +76,13 @@ const Maps: FC<IMapsProps> = ({
           zoom={zoom}
           markerDragging={markerDragging}
           animation={animation}
-          marker={marker}
-          message={message}
+          marker={markerTypes}
           mapDragging={mapDragging}
           handleDataChange={handleDataChange}
+          style={style}
         />
       )}
-    </span>
+    </div>
   );
 };
 
