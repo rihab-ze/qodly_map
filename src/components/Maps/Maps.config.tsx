@@ -1,6 +1,6 @@
 import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
-import { MdOutlineTextSnippet } from 'react-icons/md';
+import { FaMapMarkedAlt } from 'react-icons/fa';
 
 import MapsSettings, { BasicSettings } from './Maps.settings';
 
@@ -20,7 +20,7 @@ export default {
   info: {
     displayName: 'Maps',
     exposed: true,
-    icon: MdOutlineTextSnippet,
+    icon: FaMapMarkedAlt,
     events: [
       {
         label: 'On Click',
@@ -59,20 +59,20 @@ export default {
     style: { height: '400px' },
     zoom: 10,
     markerDragging: false,
-    marker: true,
     animation: true,
     popup: false,
     mapDragging: true,
-    message: '',
+    markerTypes: 'none',
+    distance: 100,
   },
 } as T4DComponentConfig<IMapsProps>;
 
 export interface IMapsProps extends webforms.ComponentProps {
   zoom: number;
   markerDragging: boolean;
-  marker: boolean;
   animation: boolean;
   popup: boolean;
   mapDragging: boolean;
-  message: string;
+  markerTypes: 'none' | 'one' | 'multiple';
+  distance: number;
 }

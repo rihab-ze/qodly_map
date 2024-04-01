@@ -1,5 +1,10 @@
 import { ESetting, TSetting } from '@ws-ui/webform-editor';
 import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
+import { FaMapMarkerAlt } from "react-icons/fa";
+import { TbMapPin2 } from "react-icons/tb";
+import { LuMapPinOff } from "react-icons/lu";
+
+
 
 const commonSettings: TSetting[] = [
   {
@@ -21,16 +26,15 @@ const commonSettings: TSetting[] = [
     defaultValue: true,
   },
   {
-    key: 'marker',
-    label: 'Marker',
-    type: ESetting.CHECKBOX,
-    defaultValue: true,
-  },
-  {
-    key: 'markerDragging',
-    label: 'Marker dragging',
-    type: ESetting.CHECKBOX,
-    defaultValue: false,
+    key: 'markerTypes',
+    label: 'Marker types',
+    type: ESetting.RADIOGROUP,
+    defaultValue: 'none',
+    options: [
+      { value: 'none', icon:LuMapPinOff },
+      { value: 'one', icon:FaMapMarkerAlt},
+      { value: 'multiple', icon: TbMapPin2 },
+    ],
   },
   {
     key: 'popup',
@@ -39,11 +43,17 @@ const commonSettings: TSetting[] = [
     defaultValue: false,
   },
   {
-    key: 'message',
-    label: 'Popup message',
-    type: ESetting.TEXT_FIELD,
-    defaultValue: '',
+    key: 'markerDragging',
+    label: 'Single marker dragging',
+    type: ESetting.CHECKBOX,
+    defaultValue: false,
   },
+  {
+    key: 'distance',
+    label: 'Marker group distance (Km)',
+    type: ESetting.NUMBER_FIELD,
+    defaultValue: 100,
+  }
 ];
 
 const Settings: TSetting[] = [
@@ -53,11 +63,12 @@ const Settings: TSetting[] = [
     type: ESetting.GROUP,
     components: commonSettings,
   },
-  ...DEFAULT_SETTINGS,
+  ...load(DEFAULT_SETTINGS).filter('style.overflow','font','background'),
 ];
+console.log(BASIC_SETTINGS)
 export const BasicSettings: TSetting[] = [
   ...commonSettings,
-  ...load(BASIC_SETTINGS).filter('style.overflow'),
+  ...load(BASIC_SETTINGS).filter('style.overflow','style.fontFamily',"style.fontWeight","style.fontSize","style.textAlign","style.textTransform",'background'),
 ];
 
 export default Settings;
