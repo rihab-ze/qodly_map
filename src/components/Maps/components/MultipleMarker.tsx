@@ -66,7 +66,7 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={{ height: style?.height }} />
+      <div ref={mapRef} style={style} />
     </div>
   );
 };
