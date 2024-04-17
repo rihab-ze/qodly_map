@@ -38,6 +38,9 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker | null>(null);
+  var defaultIcon = L.icon({
+    iconUrl: '../../../../public/marker-icon.png',
+  });
 
   useEffect(() => {
     if (mapRef.current) {
@@ -51,6 +54,7 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
       if (marker == 'one') {
         markers.current = L.marker([+data.latitude, +data.longitude], {
           draggable: markerDragging,
+          icon: defaultIcon,
         }).addTo(map.current);
         if (popup) {
           const popUpMessage = data.popupMessage as HTMLElement;

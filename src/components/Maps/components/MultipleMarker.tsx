@@ -33,6 +33,9 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
   const { connect } = useRenderer();
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
+  var defaultIcon = L.icon({
+    iconUrl: '../../../../public/marker-icon.png',
+  });
 
   useEffect(() => {
     if (mapRef.current && data[1]) {
@@ -48,7 +51,9 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
       for (let i = 0; i < groups.length; i++) {
         markers[i] = L.markerClusterGroup();
         for (let j = 0; j < groups[i].length; j++) {
-          const marker = L.marker([+groups[i][j]?.latitude, +groups[i][j]?.longitude]);
+          const marker = L.marker([+groups[i][j]?.latitude, +groups[i][j]?.longitude], {
+            icon: defaultIcon,
+          });
           if (groups[i][j].popupMessage && popup) {
             const popupMessage = groups[i][j].popupMessage as HTMLElement;
             marker.bindPopup(popupMessage);
