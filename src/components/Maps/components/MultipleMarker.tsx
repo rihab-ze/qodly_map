@@ -41,7 +41,6 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
   });
 
   useEffect(() => {
-    console.log(map.current);
     if (mapRef.current && data[1]) {
       map.current = L.map(mapRef.current, { dragging: mapDragging }).setView(
         [+data[0].latitude, +data[0].longitude],
@@ -72,9 +71,6 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
       if (map) map.current?.remove();
     };
   }, [zoom, map, mapDragging, data]);
-  console.log(isLocationAndPopupArray(data));
-  console.log(data !== null);
-  console.log(data);
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       {isLocationAndPopupArray(data) ? (
