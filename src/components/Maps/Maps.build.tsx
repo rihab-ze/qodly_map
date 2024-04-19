@@ -22,6 +22,12 @@ const Maps: FC<IMapsProps> = ({
     connectors: { connect },
   } = useEnhancedNode();
   const mapRef = useRef<HTMLDivElement>(null);
+  var defaultIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/rihab-ze/qodly_map/develop/public/marker-icon.png',
+    iconSize: [26, 42],
+    iconAnchor: [13, 43],
+    popupAnchor: [0, -36],
+  });
   useEffect(() => {
     let map: L.Map | null = null;
     if (mapRef.current) {
@@ -32,12 +38,15 @@ const Maps: FC<IMapsProps> = ({
       }).addTo(map);
       if (markerTypes == 'multiple') {
         var markers = L.markerClusterGroup();
-        markers.addLayer(L.marker([51.505, -0.09]));
-        markers.addLayer(L.marker([51.505, -0.13]));
-        markers.addLayer(L.marker([51.505, -0.2]));
+        markers.addLayer(L.marker([51.505, -0.09], { icon: defaultIcon }));
+        markers.addLayer(L.marker([51.505, -0.13], { icon: defaultIcon }));
+        markers.addLayer(L.marker([51.505, -0.2], { icon: defaultIcon }));
         map.addLayer(markers);
       } else if (markerTypes == 'one') {
-        const marker = L.marker([51.505, -0.09], { draggable: markerDragging }).addTo(map);
+        const marker = L.marker([51.505, -0.09], {
+          draggable: markerDragging,
+          icon: defaultIcon,
+        }).addTo(map);
         if (popup) marker.bindPopup('your message here').openPopup();
       }
     }

@@ -25,12 +25,7 @@ const Maps: FC<IMapsProps> = ({
 }) => {
   const { connect } = useRenderer();
   const [value1, setValue1] = useState<LoactionAndPopup[]>([]);
-  const [value, setValue] = useState<LoactionAndPopup>({
-    longitude: 0,
-    latitude: 0,
-    popupMessage: null,
-  });
-
+  const [value, setValue] = useState<LoactionAndPopup | undefined>(undefined);
   const {
     sources: { datasource: ds },
   } = useSources();

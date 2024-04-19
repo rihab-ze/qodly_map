@@ -11,7 +11,7 @@ interface ISingleMarkerProps extends webforms.ComponentProps {
   animation: boolean;
   marker: string;
   mapDragging: boolean;
-  data: LoactionAndPopup;
+  data: LoactionAndPopup | undefined;
   handleDataChange: (value: LoactionAndPopup) => void;
 }
 
@@ -38,22 +38,29 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker | null>(null);
+  var defaultIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/rihab-ze/qodly_map/develop/public/marker-icon.png',
+    iconSize: [26, 42],
+    iconAnchor: [13, 43],
+    popupAnchor: [0, -36],
+  });
 
   useEffect(() => {
     if (mapRef.current) {
       map.current = L.map(mapRef.current, { dragging: mapDragging }).setView(
-        [+data.latitude, +data.longitude],
+        [+data!.latitude, +data!.longitude],
         zoom,
       );
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map.current);
       if (marker == 'one') {
-        markers.current = L.marker([+data.latitude, +data.longitude], {
+        markers.current = L.marker([+data!.latitude, +data!.longitude], {
           draggable: markerDragging,
+          icon: defaultIcon,
         }).addTo(map.current);
         if (popup) {
-          const popUpMessage = data.popupMessage as HTMLElement;
+          const popUpMessage = data!.popupMessage as HTMLElement;
           markers.current.bindPopup(popUpMessage);
         }
         // Attach event listener to listen for map moveend
@@ -62,7 +69,7 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
           data = {
             longitude: newCenter.lng,
             latitude: newCenter.lat,
-            popupMessage: data.popupMessage,
+            popupMessage: data!.popupMessage,
           };
           handleDataChange(data);
         });
@@ -72,20 +79,20 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
     return () => {
       if (map) map.current?.remove();
     };
-  }, [markerDragging, zoom, map, mapDragging, popup]);
+  }, [markerDragging, zoom, map, mapDragging, popup, data]);
 
   useEffect(() => {
-    map.current?.flyTo([+data.latitude, +data.longitude], zoom, {
+    map.current?.flyTo([+data!.latitude, +data!.longitude], zoom, {
       animate: animation,
     });
     if (map.current && marker == 'one') {
       markers.current?.setLatLng({
-        lat: data.latitude,
-        lng: data.longitude,
+        lat: data!.latitude,
+        lng: data!.longitude,
       });
 
       if (popup) {
-        const popUpMessage = data.popupMessage as HTMLElement;
+        const popUpMessage = data!.popupMessage as HTMLElement;
         markers.current?.bindPopup(popUpMessage);
       }
     }
@@ -93,9 +100,22 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={style} />
+      {isLocationAndPopup(data) ? (
+        <div ref={mapRef} style={style} />
+      ) : (
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline">Datasource does not match the expected format. </span>
+        </div>
+      )}
     </div>
   );
 };
 
 export default SingleMarker;
+function isLocationAndPopup(obj: any): obj is LoactionAndPopup {
+  return typeof obj == 'object' && !Array.isArray(obj) && 'latitude' in obj && 'longitude' in obj;
+}
