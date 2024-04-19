@@ -34,10 +34,14 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   var defaultIcon = L.icon({
-    iconUrl: '../../../../public/marker-icon.png',
+    iconUrl: 'https://raw.githubusercontent.com/rihab-ze/qodly_map/develop/public/marker-icon.png',
+    iconSize: [26, 42],
+    iconAnchor: [13, 43],
+    popupAnchor: [0, -36],
   });
 
   useEffect(() => {
+    console.log(map.current);
     if (mapRef.current && data[1]) {
       map.current = L.map(mapRef.current, { dragging: mapDragging }).setView(
         [+data[0].latitude, +data[0].longitude],
@@ -68,10 +72,22 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
       if (map) map.current?.remove();
     };
   }, [zoom, map, mapDragging, data]);
-
+  console.log(isLocationAndPopupArray(data));
+  console.log(data !== null);
+  console.log(data);
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={style} />
+      {isLocationAndPopupArray(data) ? (
+        <div ref={mapRef} style={style} />
+      ) : (
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline">Datasource does not match the expected format. </span>
+        </div>
+      )}
     </div>
   );
 };
@@ -121,4 +137,11 @@ function findNearbyCoordinates(
   });
 
   return result;
+}
+function isLocationAndPopupArray(arr: any[]): arr is LoactionAndPopup[] {
+  return (
+    Array.isArray(arr) &&
+    arr.length > 1 &&
+    arr.every((obj) => typeof obj === 'object' && 'longitude' in obj && 'latitude' in obj)
+  );
 }

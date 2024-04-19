@@ -23,7 +23,10 @@ const Maps: FC<IMapsProps> = ({
   } = useEnhancedNode();
   const mapRef = useRef<HTMLDivElement>(null);
   var defaultIcon = L.icon({
-    iconUrl: '../../../public/marker-icon.png',
+    iconUrl: 'https://raw.githubusercontent.com/rihab-ze/qodly_map/develop/public/marker-icon.png',
+    iconSize: [26, 42],
+    iconAnchor: [13, 43],
+    popupAnchor: [0, -36],
   });
   useEffect(() => {
     let map: L.Map | null = null;

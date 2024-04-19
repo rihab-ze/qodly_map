@@ -65,7 +65,6 @@ const Settings: TSetting[] = [
   },
   ...load(DEFAULT_SETTINGS).filter('style.overflow','font','background'),
 ];
-console.log(BASIC_SETTINGS)
 export const BasicSettings: TSetting[] = [
   ...commonSettings,
   ...load(BASIC_SETTINGS).filter('style.overflow','style.fontFamily',"style.fontWeight","style.fontSize","style.textAlign","style.textTransform",'background'),
