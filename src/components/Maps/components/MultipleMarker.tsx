@@ -46,6 +46,9 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
         [+data[0].latitude, +data[0].longitude],
         zoom,
       );
+      mapRef.current.addEventListener('mousedown', (event) => {
+        event.stopPropagation();
+      });
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map.current);

@@ -51,6 +51,9 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
         [+data!.latitude, +data!.longitude],
         zoom,
       );
+      mapRef.current.addEventListener('mousedown', (event) => {
+        event.stopPropagation();
+      });
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map.current);
@@ -72,6 +75,9 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
             popupMessage: data!.popupMessage,
           };
           handleDataChange(data);
+        });
+        markers.current.on('mousedown', (event) => {
+          event.originalEvent?.stopPropagation(); // Stop the event bubbling
         });
       }
     }
