@@ -13,6 +13,7 @@ interface IMultipleMarkerProps extends webforms.ComponentProps {
   data: LoactionAndPopup[];
   popup: boolean;
   distance: number;
+  size: { width: number; height: number };
 }
 
 interface LoactionAndPopup {
@@ -29,6 +30,7 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
   distance,
   popup,
   classNames = [],
+  size,
 }) => {
   const { connect } = useRenderer();
   const mapRef = useRef<HTMLDivElement>(null);
@@ -73,7 +75,7 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
     return () => {
       if (map) map.current?.remove();
     };
-  }, [zoom, map, mapDragging, data]);
+  }, [zoom, map, mapDragging, data, size]);
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       {isLocationAndPopupArray(data) ? (

@@ -1,6 +1,6 @@
 import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 
 import { IMapsProps } from './Maps.config';
 import MultipleMarker from './components/MultipleMarker';
@@ -26,6 +26,9 @@ const Maps: FC<IMapsProps> = ({
   const { connect } = useRenderer();
   const [value1, setValue1] = useState<LoactionAndPopup[]>([]);
   const [value, setValue] = useState<LoactionAndPopup | undefined>(undefined);
+
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const ref = useRef(null);
   const {
     sources: { datasource: ds },
   } = useSources();
@@ -49,34 +52,57 @@ const Maps: FC<IMapsProps> = ({
     };
   }, [ds]);
 
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const { width, height } = entry.contentRect;
+        setSize({ width, height });
+      }
+    });
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
   const handleDataChange = (newValue: LoactionAndPopup) => {
     ds.setValue<object>(null, newValue);
   };
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      {markerTypes == 'multiple' ? (
-        <MultipleMarker
-          data={value1}
-          zoom={zoom}
-          mapDragging={mapDragging}
-          popup={popup}
-          distance={distance}
-          style={style}
-        />
-      ) : (
-        <SingleMarker
-          data={value}
-          popup={popup}
-          zoom={zoom}
-          markerDragging={markerDragging}
-          animation={animation}
-          marker={markerTypes}
-          mapDragging={mapDragging}
-          handleDataChange={handleDataChange}
-          style={style}
-        />
-      )}
+      <div ref={ref} style={{ width: '100%', height: '100%', border: '1px solid black' }}>
+        {markerTypes == 'multiple' ? (
+          <MultipleMarker
+            data={value1}
+            zoom={zoom}
+            mapDragging={mapDragging}
+            popup={popup}
+            distance={distance}
+            style={style}
+            size={size}
+          />
+        ) : (
+          <SingleMarker
+            data={value}
+            popup={popup}
+            zoom={zoom}
+            markerDragging={markerDragging}
+            animation={animation}
+            marker={markerTypes}
+            mapDragging={mapDragging}
+            handleDataChange={handleDataChange}
+            style={style}
+            size={size}
+          />
+        )}
+      </div>
     </div>
   );
 };

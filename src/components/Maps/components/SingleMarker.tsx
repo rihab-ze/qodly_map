@@ -13,6 +13,7 @@ interface ISingleMarkerProps extends webforms.ComponentProps {
   mapDragging: boolean;
   data: LoactionAndPopup | undefined;
   handleDataChange: (value: LoactionAndPopup) => void;
+  size: { width: number; height: number };
 }
 
 interface LoactionAndPopup {
@@ -33,6 +34,7 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
   handleDataChange,
   className,
   classNames = [],
+  size,
 }) => {
   const { connect } = useRenderer();
   const mapRef = useRef<HTMLDivElement>(null);
@@ -85,7 +87,7 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
     return () => {
       if (map) map.current?.remove();
     };
-  }, [markerDragging, zoom, map, mapDragging, popup, data]);
+  }, [markerDragging, zoom, map, mapDragging, popup, data, size]);
 
   useEffect(() => {
     map.current?.flyTo([+data!.latitude, +data!.longitude], zoom, {
