@@ -77,7 +77,7 @@ const Maps: FC<IMapsProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={ref} style={{ width: '100%', height: '100%', border: '1px solid black' }}>
+      <div ref={ref} style={{ width: '100%', height: '100%' }}>
         {markerTypes == 'multiple' ? (
           <MultipleMarker
             data={value1}
