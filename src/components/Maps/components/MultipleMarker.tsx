@@ -1,5 +1,3 @@
-import { useRenderer } from '@ws-ui/webform-editor';
-import cn from 'classnames';
 import { FC, useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -13,6 +11,7 @@ interface IMultipleMarkerProps extends webforms.ComponentProps {
   data: LoactionAndPopup[];
   popup: boolean;
   distance: number;
+  size: { width: number; height: number };
 }
 
 interface LoactionAndPopup {
@@ -21,16 +20,13 @@ interface LoactionAndPopup {
   popupMessage: HTMLElement | null;
 }
 const MultipleMarker: FC<IMultipleMarkerProps> = ({
-  style,
   zoom,
   mapDragging,
-  className,
   data,
   distance,
   popup,
-  classNames = [],
+  size,
 }) => {
-  const { connect } = useRenderer();
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   var defaultIcon = L.icon({
@@ -73,11 +69,11 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
     return () => {
       if (map) map.current?.remove();
     };
-  }, [zoom, map, mapDragging, data]);
+  }, [zoom, map, mapDragging, data, size]);
   return (
-    <div ref={connect} style={style} className={cn(className, classNames)}>
+    <>
       {isLocationAndPopupArray(data) ? (
-        <div ref={mapRef} style={style} />
+        <div ref={mapRef} style={size} />
       ) : (
         <div
           className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -87,7 +83,7 @@ const MultipleMarker: FC<IMultipleMarkerProps> = ({
           <span className="block sm:inline">Datasource does not match the expected format. </span>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
