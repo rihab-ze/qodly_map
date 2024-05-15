@@ -1,5 +1,3 @@
-import { useRenderer } from '@ws-ui/webform-editor';
-import cn from 'classnames';
 import { FC, useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -23,7 +21,6 @@ interface LoactionAndPopup {
 }
 
 const SingleMarker: FC<ISingleMarkerProps> = ({
-  style,
   popup,
   marker,
   zoom,
@@ -32,11 +29,8 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
   mapDragging,
   data,
   handleDataChange,
-  className,
-  classNames = [],
   size,
 }) => {
-  const { connect } = useRenderer();
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker | null>(null);
@@ -107,9 +101,9 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
   }, [data]);
 
   return (
-    <div ref={connect} style={style} className={cn(className, classNames)}>
+    <>
       {isLocationAndPopup(data) ? (
-        <div ref={mapRef} style={style} />
+        <div ref={mapRef} style={size} />
       ) : (
         <div
           className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -119,7 +113,7 @@ const SingleMarker: FC<ISingleMarkerProps> = ({
           <span className="block sm:inline">Datasource does not match the expected format. </span>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

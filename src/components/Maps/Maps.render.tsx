@@ -28,7 +28,7 @@ const Maps: FC<IMapsProps> = ({
   const [value, setValue] = useState<LoactionAndPopup | undefined>(undefined);
 
   const [size, setSize] = useState({ width: 0, height: 0 });
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement | null>(null);
   const {
     sources: { datasource: ds },
   } = useSources();
@@ -76,33 +76,36 @@ const Maps: FC<IMapsProps> = ({
   };
 
   return (
-    <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={ref} style={{ width: '100%', height: '100%' }}>
-        {markerTypes == 'multiple' ? (
-          <MultipleMarker
-            data={value1}
-            zoom={zoom}
-            mapDragging={mapDragging}
-            popup={popup}
-            distance={distance}
-            style={style}
-            size={size}
-          />
-        ) : (
-          <SingleMarker
-            data={value}
-            popup={popup}
-            zoom={zoom}
-            markerDragging={markerDragging}
-            animation={animation}
-            marker={markerTypes}
-            mapDragging={mapDragging}
-            handleDataChange={handleDataChange}
-            style={style}
-            size={size}
-          />
-        )}
-      </div>
+    <div
+      ref={(R) => {
+        connect(R);
+        ref.current = R;
+      }}
+      style={style}
+      className={cn(className, classNames)}
+    >
+      {markerTypes == 'multiple' ? (
+        <MultipleMarker
+          data={value1}
+          zoom={zoom}
+          mapDragging={mapDragging}
+          popup={popup}
+          distance={distance}
+          size={size}
+        />
+      ) : (
+        <SingleMarker
+          data={value}
+          popup={popup}
+          zoom={zoom}
+          markerDragging={markerDragging}
+          animation={animation}
+          marker={markerTypes}
+          mapDragging={mapDragging}
+          handleDataChange={handleDataChange}
+          size={size}
+        />
+      )}
     </div>
   );
 };
