@@ -1,7 +1,9 @@
 // imports
-import Map from './Map';
+import SingleMap from './single';
+import MultiMap from './multi';
 
 export default {
   // components
-  Map,
+  SingleMap,
+  MultiMap,
 };

@@ -3,8 +3,9 @@ import cn from 'classnames';
 import { FC, useEffect, useState, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { getValueByPath } from './../multi/utils';
 
-import { IMapProps } from './Map.config';
+import { ISingleMapProps } from './SingleMap.config';
 
 interface LoactionAndPopup {
   longitude: number;
@@ -12,7 +13,7 @@ interface LoactionAndPopup {
   popupMessage: HTMLElement | null;
 }
 
-const Map: FC<IMapProps> = ({
+const SingleMap: FC<ISingleMapProps> = ({
   popup,
   zoom,
   markerDragging,
@@ -34,26 +35,12 @@ const Map: FC<IMapProps> = ({
     sources: { datasource: ds },
   } = useSources();
 
-  function getValueByPath(obj: any, path: string) {
-    let keys = path.split('.');
-    function traverse(obj: any, keys: any) {
-      if (keys.length === 0) {
-        return obj;
-      }
-      if (obj && typeof obj === 'object') {
-        let key = keys.shift();
-        return traverse(obj[key], keys);
-      } else {
-        return undefined;
-      }
-    }
-    return traverse(obj, keys);
-  }
-
   useEffect(() => {
     if (!ds) return;
     const listener = async (/* event */) => {
       const v = await ds.getValue();
+      console.log(v);
+      console.log(getValueByPath(v, long));
       if (getValueByPath(v, long) && getValueByPath(v, lat)) {
         setValue({
           longitude: +getValueByPath(v, long),
@@ -154,12 +141,12 @@ const Map: FC<IMapProps> = ({
       }
     };
   }, []);
-  function isLocationAndPopup(obj: any): obj is LoactionAndPopup {
+  function isDataValid(obj: any): obj is LoactionAndPopup {
     return typeof obj == 'object' && !Array.isArray(obj) && 'latitude' in obj && 'longitude' in obj;
   }
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      {isLocationAndPopup(value) ? (
+      {isDataValid(value) ? (
         <div ref={mapRef} style={size} />
       ) : (
         <div
@@ -178,4 +165,4 @@ const Map: FC<IMapProps> = ({
   );
 };
 
-export default Map;
+export default SingleMap;

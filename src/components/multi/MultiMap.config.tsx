@@ -1,12 +1,12 @@
-import { MdOutlineTextSnippet } from 'react-icons/md';
 import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
+import { TbMapPin2 } from 'react-icons/tb';
 
-import MapSettings, { BasicSettings } from './Map.settings';
+import MultiMapSettings, { BasicSettings } from './MultiMap.settings';
 
 export default {
   craft: {
-    displayName: 'Map',
+    displayName: 'MultiMap',
     kind: EComponentKind.BASIC,
     props: {
       name: '',
@@ -14,13 +14,13 @@ export default {
       events: [],
     },
     related: {
-      settings: Settings(MapSettings, BasicSettings),
+      settings: Settings(MultiMapSettings, BasicSettings),
     },
   },
   info: {
-    displayName: 'Map',
+    displayName: 'MultiMap',
     exposed: true,
-    icon: MdOutlineTextSnippet,
+    icon: TbMapPin2,
     events: [
       {
         label: 'On Click',
@@ -52,29 +52,26 @@ export default {
       },
     ],
     datasources: {
-      accept: ['object'],
+      accept: ['string'],
     },
   },
-
   defaultProps: {
     style: { height: '400px', width: '400px' },
     zoom: 10,
-    markerDragging: false,
     animation: true,
     popup: false,
     mapDragging: true,
-    marker: false,
+    distance: 100,
   },
-} as T4DComponentConfig<IMapProps>;
+} as T4DComponentConfig<IMultiMapProps>;
 
-export interface IMapProps extends webforms.ComponentProps {
+export interface IMultiMapProps extends webforms.ComponentProps {
   zoom: number;
-  markerDragging: boolean;
   animation: boolean;
   popup: boolean;
   mapDragging: boolean;
-  marker: boolean;
   long: string;
   lat: string;
-  tooltiop: string;
+  tooltip: string;
+  distance: number;
 }
