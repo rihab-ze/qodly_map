@@ -4,9 +4,9 @@ import { FC, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import { IMapProps } from './Map.config';
+import { ISingleMapProps } from './SingleMap.config';
 
-const Map: FC<IMapProps> = ({
+const SingleMap: FC<ISingleMapProps> = ({
   popup,
   zoom,
   markerDragging,
@@ -56,4 +56,4 @@ const Map: FC<IMapProps> = ({
   );
 };
 
-export default Map;
+export default SingleMap;
