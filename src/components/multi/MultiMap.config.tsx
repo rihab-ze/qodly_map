@@ -74,4 +74,5 @@ export interface IMultiMapProps extends webforms.ComponentProps {
   lat: string;
   tooltip: string;
   distance: number;
+  icone: string;
 }

@@ -22,6 +22,7 @@ const SingleMap: FC<ISingleMapProps> = ({
   marker,
   long,
   lat,
+  icone,
   tooltiop,
   style,
   className,
@@ -39,8 +40,6 @@ const SingleMap: FC<ISingleMapProps> = ({
     if (!ds) return;
     const listener = async (/* event */) => {
       const v = await ds.getValue();
-      console.log(v);
-      console.log(getValueByPath(v, long));
       if (getValueByPath(v, long) && getValueByPath(v, lat)) {
         setValue({
           longitude: +getValueByPath(v, long),
@@ -60,11 +59,10 @@ const SingleMap: FC<ISingleMapProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker | null>(null);
-  var defaultIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/rihab-ze/qodly_map/develop/public/marker-icon.png',
-    iconSize: [26, 42],
-    iconAnchor: [13, 43],
-    popupAnchor: [0, -36],
+  var myIcone = L.divIcon({
+    html: `<i class="${icone}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
+    className: '',
+    iconAnchor: [13, 33],
   });
   useEffect(() => {
     if (mapRef.current) {
@@ -82,7 +80,7 @@ const SingleMap: FC<ISingleMapProps> = ({
       if (marker) {
         markers.current = L.marker([+value!.latitude, +value!.longitude], {
           draggable: markerDragging,
-          icon: defaultIcon,
+          icon: myIcone,
         }).addTo(map.current);
         if (popup) {
           const popUpMessage = value!.popupMessage as HTMLElement;
