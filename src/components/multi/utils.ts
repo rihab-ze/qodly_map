@@ -52,8 +52,6 @@ export function getNearbyCoordinates(
 export function getValueByPath(obj: any, path: string) {
   if (path) {
     let keys = path.split('.');
-    console.log(obj, path);
-
     function traverse(obj: any, keys: any) {
       if (keys.length === 0) {
         return obj;

@@ -55,7 +55,7 @@ const SingleMap: FC<ISingleMapProps> = ({
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
+  }, []);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
