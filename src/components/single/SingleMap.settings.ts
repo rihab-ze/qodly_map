@@ -53,6 +53,12 @@ const commonSettings: TSetting[] = [
     label: 'Tooltip',
     type: ESetting.TEXT_FIELD,
   },
+  {
+    key: 'icone',
+    label: 'Marker Icone',
+    type: ESetting.ICON_PICKER,
+    defaultValue: 'fa-solid fa-location-dot',
+  },
 ];
 
 const Settings: TSetting[] = [

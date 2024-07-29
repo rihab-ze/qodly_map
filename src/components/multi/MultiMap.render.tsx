@@ -26,6 +26,7 @@ const MultiMap: FC<IMultiMapProps> = ({
   long,
   lat,
   tooltip,
+  icone,
   style,
   className,
   classNames = [],
@@ -122,11 +123,10 @@ const MultiMap: FC<IMultiMapProps> = ({
 
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
-  var defaultIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/rihab-ze/qodly_map/develop/public/marker-icon.png',
-    iconSize: [26, 42],
-    iconAnchor: [13, 43],
-    popupAnchor: [0, -36],
+  var myIcone = L.divIcon({
+    html: `<i class="${icone}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
+    className: '',
+    iconAnchor: [13, 33],
   });
   useEffect(() => {
     if (mapRef.current) {
@@ -147,7 +147,7 @@ const MultiMap: FC<IMultiMapProps> = ({
         markers[i] = L.markerClusterGroup();
         for (let j = 0; j < groups[i].length; j++) {
           const marker = L.marker([+groups[i][j]?.latitude, +groups[i][j]?.longitude], {
-            icon: defaultIcon,
+            icon: myIcone,
           });
           marker.on('click', (event) => {
             const { lat, lng } = (event as L.LeafletMouseEvent).latlng;

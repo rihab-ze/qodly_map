@@ -64,6 +64,7 @@ export default {
     popup: false,
     mapDragging: true,
     marker: false,
+    icone: 'fa-solid fa-location-dot',
   },
 } as T4DComponentConfig<ISingleMapProps>;
 
@@ -77,4 +78,5 @@ export interface ISingleMapProps extends webforms.ComponentProps {
   long: string;
   lat: string;
   tooltiop: string;
+  icone: string;
 }

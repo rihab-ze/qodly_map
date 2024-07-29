@@ -1,6 +1,6 @@
 import { useEnhancedNode } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
@@ -14,6 +14,7 @@ const MultiMap: FC<IMultiMapProps> = ({
   zoom,
   mapDragging,
   style,
+  icone,
   className,
   classNames = [],
 }) => {
@@ -21,12 +22,13 @@ const MultiMap: FC<IMultiMapProps> = ({
     connectors: { connect },
   } = useEnhancedNode();
   const mapRef = useRef<HTMLDivElement>(null);
-  var defaultIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/rihab-ze/qodly_map/develop/public/marker-icon.png',
-    iconSize: [26, 42],
-    iconAnchor: [13, 43],
-    popupAnchor: [0, -36],
-  });
+  const [iconUrl, setIconUrl] = useState('fa-solid fa-map-pin');
+  useEffect(() => {
+    const changeIconUrl = () => {
+      setIconUrl(icone);
+    };
+    changeIconUrl();
+  }, [icone]);
   useEffect(() => {
     let map: L.Map | null = null;
     if (mapRef.current) {
@@ -35,10 +37,15 @@ const MultiMap: FC<IMultiMapProps> = ({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
+      var myIcone = L.divIcon({
+        html: `<i class="${iconUrl}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
+        className: '',
+        iconAnchor: [13, 33],
+      });
       var markers = L.markerClusterGroup();
-      markers.addLayer(L.marker([51.505, -0.09], { icon: defaultIcon }));
-      markers.addLayer(L.marker([51.505, -0.13], { icon: defaultIcon }));
-      markers.addLayer(L.marker([51.505, -0.2], { icon: defaultIcon }));
+      markers.addLayer(L.marker([51.505, -0.09], { icon: myIcone }));
+      markers.addLayer(L.marker([51.505, -0.13], { icon: myIcone }));
+      markers.addLayer(L.marker([51.505, -0.2], { icon: myIcone }));
       map.addLayer(markers);
     }
 
@@ -46,7 +53,7 @@ const MultiMap: FC<IMultiMapProps> = ({
     return () => {
       if (map) map.remove();
     };
-  }, [zoom, popup, mapDragging, style]);
+  }, [zoom, popup, mapDragging, style, iconUrl]);
 
   return (
     <span ref={connect} style={style} className={cn(className, classNames)}>
