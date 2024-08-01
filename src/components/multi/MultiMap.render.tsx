@@ -124,7 +124,7 @@ const MultiMap: FC<IMultiMapProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   var myIcone = L.divIcon({
-    html: `<i class="${icone}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
+    html: `<i class="map_icon ${icone}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
     className: '',
     iconAnchor: [13, 33],
   });
@@ -156,7 +156,7 @@ const MultiMap: FC<IMultiMapProps> = ({
           });
           if (groups[i][j].popupMessage && popup) {
             const popupMessage = groups[i][j].popupMessage as HTMLElement;
-            marker.bindPopup(popupMessage);
+            marker.bindPopup(popupMessage, { offset: L.point(3, -10) });
           }
           markers[i].addLayer(marker);
         }
@@ -226,7 +226,7 @@ const MultiMap: FC<IMultiMapProps> = ({
       className={cn(className, classNames)}
     >
       {isDataValid(val) ? (
-        <div ref={mapRef} style={size} />
+        <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
       ) : (
         <div
           className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg shadow-md"

@@ -38,7 +38,7 @@ const MultiMap: FC<IMultiMapProps> = ({
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
       var myIcone = L.divIcon({
-        html: `<i class="${iconUrl}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
+        html: `<i class="map_icon ${iconUrl}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
         className: '',
         iconAnchor: [13, 33],
       });
@@ -53,11 +53,11 @@ const MultiMap: FC<IMultiMapProps> = ({
     return () => {
       if (map) map.remove();
     };
-  }, [zoom, popup, mapDragging, style, iconUrl]);
+  }, [zoom, mapDragging, style, iconUrl]);
 
   return (
     <span ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={style}>
+      <div ref={mapRef} style={{ ...style, zIndex: 1 }}>
         {' '}
       </div>
     </span>

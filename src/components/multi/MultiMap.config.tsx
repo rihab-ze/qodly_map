@@ -1,4 +1,10 @@
-import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
+import {
+  EComponentKind,
+  IExostiveElementProps,
+  splitDatasourceID,
+  T4DComponentConfig,
+  T4DComponentDatasourceDeclaration,
+} from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
 import { TbMapPin2 } from 'react-icons/tb';
 
@@ -52,7 +58,35 @@ export default {
       },
     ],
     datasources: {
-      accept: ['string'],
+      declarations: (props) => {
+        const { lat, long, tooltip, datasource = '' } = props;
+        const declarations: T4DComponentDatasourceDeclaration[] = [
+          { path: datasource, iterable: true },
+        ];
+        if (lat && long) {
+          const { id: ds, namespace } = splitDatasourceID(datasource?.trim()) || {};
+
+          if (!ds) {
+            return;
+          }
+
+          const latSrc = `${ds}.[].${lat}`;
+          declarations.push({
+            path: namespace ? `${namespace}:${latSrc}` : latSrc,
+          });
+
+          const longSrc = `${ds}.[].${long}`;
+          declarations.push({
+            path: namespace ? `${namespace}:${longSrc}` : longSrc,
+          });
+          const tooltipSrc = `${ds}.[].${tooltip}`;
+          declarations.push({
+            path: namespace ? `${namespace}:${tooltipSrc}` : tooltipSrc,
+          });
+        }
+        return declarations;
+      },
+      accept: ['entitySel', 'array'],
     },
   },
   defaultProps: {
@@ -62,6 +96,7 @@ export default {
     popup: false,
     mapDragging: true,
     distance: 100,
+    icone: 'fa-solid fa-location-dot',
   },
 } as T4DComponentConfig<IMultiMapProps>;
 
