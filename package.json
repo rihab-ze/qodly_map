@@ -18,22 +18,19 @@
   },
   "overrides": {
     "@ws-ui/webform-editor": {
-      "@ws-ui/code-editor": "0.1.21",
-      "@ws-ui/craftjs-core": "0.2.5",
-      "@ws-ui/craftjs-layers": "0.2.2",
-      "@ws-ui/craftjs-utils": "0.2.1",
-      "@ws-ui/icons": "0.0.16",
-      "@ws-ui/shared": "0.1.21",
-      "@ws-ui/store": "0.1.26"
+      "@ws-ui/code-editor": "0.2.0",
+      "@ws-ui/craftjs-core": "0.2.9",
+      "@ws-ui/craftjs-layers": "0.2.4",
+      "@ws-ui/craftjs-utils": "0.2.2",
+      "@ws-ui/icons": "0.0.20",
+      "@ws-ui/shared": "0.2.0",
+      "@ws-ui/store": "0.2.1"
     }
   },
   "dependencies": {
     "@types/leaflet": "^1.9.12",
     "@types/leaflet.markercluster": "^1.5.4",
-    "@ws-ui/craftjs-core": "0.2.5",
-    "@ws-ui/craftjs-layers": "0.2.2",
-    "@ws-ui/craftjs-utils": "0.2.1",
-    "@ws-ui/webform-editor": "0.2.13",
+    "@ws-ui/webform-editor": "0.3.7",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "react": "^17.0.2",

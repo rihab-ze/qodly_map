@@ -15,16 +15,10 @@ const commonSettings: TSetting[] = [
     defaultValue: true,
   },
   {
-    key: 'animation',
-    label: 'Animation',
-    type: ESetting.CHECKBOX,
-    defaultValue: true,
-  },
-  {
     key: 'marker',
     label: 'Marker',
     type: ESetting.CHECKBOX,
-    defaultValue: false,
+    defaultValue: true,
   },
   {
     key: 'popup',
@@ -34,9 +28,24 @@ const commonSettings: TSetting[] = [
   },
   {
     key: 'markerDragging',
-    label: 'Single marker dragging',
+    label: 'Marker dragging',
     type: ESetting.CHECKBOX,
     defaultValue: false,
+  },
+
+  {
+    key: 'icon',
+    label: 'Marker Icon',
+    type: ESetting.ICON_PICKER,
+    defaultValue: 'fa-solid fa-location-dot',
+  },
+];
+
+const dataAccessSettings: TSetting[] = [
+  {
+    key: 'datasource',
+    label: 'Data Source',
+    type: ESetting.DS_AUTO_SUGGEST,
   },
   {
     key: 'long',
@@ -49,15 +58,15 @@ const commonSettings: TSetting[] = [
     type: ESetting.TEXT_FIELD,
   },
   {
-    key: 'tooltiop',
+    key: 'tooltip',
     label: 'Tooltip',
     type: ESetting.TEXT_FIELD,
   },
   {
-    key: 'icone',
-    label: 'Marker Icone',
-    type: ESetting.ICON_PICKER,
-    defaultValue: 'fa-solid fa-location-dot',
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
   },
 ];
 
@@ -68,7 +77,13 @@ const Settings: TSetting[] = [
     type: ESetting.GROUP,
     components: commonSettings,
   },
-  ...load(DEFAULT_SETTINGS).filter('style.overflow', 'font', 'background'),
+  {
+    key: 'dataAccess',
+    label: 'Data Access',
+    type: ESetting.GROUP,
+    components: dataAccessSettings,
+  },
+  ...load(DEFAULT_SETTINGS).filter('style.overflow', 'font', 'background', 'dataAccess'),
 ];
 
 export const BasicSettings: TSetting[] = [

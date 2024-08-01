@@ -32,21 +32,7 @@ const commonSettings: TSetting[] = [
     type: ESetting.NUMBER_FIELD,
     defaultValue: 100,
   },
-  {
-    key: 'long',
-    label: 'Longitude',
-    type: ESetting.TEXT_FIELD,
-  },
-  {
-    key: 'lat',
-    label: 'Latitude',
-    type: ESetting.TEXT_FIELD,
-  },
-  {
-    key: 'tooltip',
-    label: 'Tooltip',
-    type: ESetting.TEXT_FIELD,
-  },
+
   {
     key: 'icone',
     label: 'Marker Icone',
@@ -65,6 +51,21 @@ const dataAccessSettings: TSetting[] = [
     key: 'currentElement',
     label: 'currentPosition',
     type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'long',
+    label: 'Longitude',
+    type: ESetting.TEXT_FIELD,
+  },
+  {
+    key: 'lat',
+    label: 'Latitude',
+    type: ESetting.TEXT_FIELD,
+  },
+  {
+    key: 'tooltip',
+    label: 'Tooltip',
+    type: ESetting.TEXT_FIELD,
   },
   {
     key: 'serverSideRef',

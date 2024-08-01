@@ -17,25 +17,25 @@ const SingleMap: FC<ISingleMapProps> = ({
   popup,
   zoom,
   markerDragging,
-  animation,
   mapDragging,
   marker,
   long,
   lat,
-  icone,
-  tooltiop,
+  icon,
+  tooltip,
   style,
   className,
   classNames = [],
 }) => {
   const { connect } = useRenderer();
-  const [value, setValue] = useState<LoactionAndPopup | undefined>(undefined);
+  const [value, setValue] = useState<LoactionAndPopup>();
   const [size, setSize] = useState({ width: style?.width, height: style?.height });
+  const [isLoaded, setIsLoaded] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
+
   const {
     sources: { datasource: ds },
   } = useSources();
-
   useEffect(() => {
     if (!ds) return;
     const listener = async (/* event */) => {
@@ -44,8 +44,9 @@ const SingleMap: FC<ISingleMapProps> = ({
         setValue({
           longitude: +getValueByPath(v, long),
           latitude: +getValueByPath(v, lat),
-          popupMessage: getValueByPath(v, tooltiop),
+          popupMessage: getValueByPath(v, tooltip),
         });
+        setIsLoaded(true);
       }
     };
     listener();
@@ -59,8 +60,8 @@ const SingleMap: FC<ISingleMapProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker | null>(null);
-  var myIcone = L.divIcon({
-    html: `<i class="${icone}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
+  var myIcon = L.divIcon({
+    html: `<i class="map_icon ${icon}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
     className: '',
     iconAnchor: [13, 33],
   });
@@ -80,23 +81,27 @@ const SingleMap: FC<ISingleMapProps> = ({
       if (marker) {
         markers.current = L.marker([+value!.latitude, +value!.longitude], {
           draggable: markerDragging,
-          icon: myIcone,
+          icon: myIcon,
         }).addTo(map.current);
         if (popup) {
           const popUpMessage = value!.popupMessage as HTMLElement;
-          markers.current.bindPopup(popUpMessage);
+          markers.current.bindPopup(popUpMessage, { offset: L.point(3, -10) });
         }
-        // Attach event listener to listen for map moveend
-        markers.current.on('moveend', (event) => {
-          const newCenter = (event.target as L.Marker).getLatLng();
-          setValue({
-            longitude: newCenter.lng,
-            latitude: newCenter.lat,
-            popupMessage: value!.popupMessage,
-          });
-        });
         markers.current.on('mousedown', (event) => {
           event.originalEvent?.stopPropagation(); // Stop the event bubbling
+        });
+      }
+      if (markerDragging) {
+        map.current?.on('click', (event: L.LeafletMouseEvent) => {
+          const { lat, lng } = event.latlng;
+          setValue({
+            longitude: lng,
+            latitude: lat,
+            popupMessage: value!.popupMessage,
+          });
+          if (markers.current) {
+            markers.current.setLatLng([lat, lng]);
+          }
         });
       }
     }
@@ -104,11 +109,10 @@ const SingleMap: FC<ISingleMapProps> = ({
     return () => {
       if (map) map.current?.remove();
     };
-  }, [markerDragging, zoom, map, mapDragging, popup, value, size, tooltiop]);
+  }, [zoom, size, map, isLoaded]);
+
   useEffect(() => {
-    map.current?.flyTo([value!.latitude, value!.longitude], zoom, {
-      animate: animation,
-    });
+    map.current?.flyTo([value!.latitude, value!.longitude]);
     if (map.current && marker) {
       markers.current?.setLatLng({
         lat: value!.latitude,
@@ -145,7 +149,7 @@ const SingleMap: FC<ISingleMapProps> = ({
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       {isDataValid(value) ? (
-        <div ref={mapRef} style={size} />
+        <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
       ) : (
         <div
           className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg shadow-md"

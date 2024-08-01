@@ -1,4 +1,9 @@
-import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
+import {
+  EComponentKind,
+  splitDatasourceID,
+  T4DComponentConfig,
+  T4DComponentDatasourceDeclaration,
+} from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 
@@ -52,7 +57,31 @@ export default {
       },
     ],
     datasources: {
-      accept: ['object'],
+      declarations: (props) => {
+        const { lat, long, datasource = '' } = props;
+        const declarations: T4DComponentDatasourceDeclaration[] = [
+          { path: datasource, iterable: true },
+        ];
+        if (lat && long) {
+          const { id: ds, namespace } = splitDatasourceID(datasource?.trim()) || {};
+
+          if (!ds) {
+            return;
+          }
+
+          const latSrc = `${ds}.${lat}`;
+          declarations.push({
+            path: namespace ? `${namespace}:${latSrc}` : latSrc,
+          });
+
+          const longSrc = `${ds}.${long}`;
+          declarations.push({
+            path: namespace ? `${namespace}:${longSrc}` : longSrc,
+          });
+        }
+        return declarations;
+      },
+      accept: ['object', 'entity'],
     },
   },
 
@@ -60,23 +89,21 @@ export default {
     style: { height: '400px', width: '400px' },
     zoom: 10,
     markerDragging: false,
-    animation: true,
     popup: false,
     mapDragging: true,
-    marker: false,
-    icone: 'fa-solid fa-location-dot',
+    marker: true,
+    icon: 'fa-solid fa-location-dot',
   },
-} as T4DComponentConfig<ISingleMapProps>;
+} as T4DComponentConfig;
 
 export interface ISingleMapProps extends webforms.ComponentProps {
   zoom: number;
   markerDragging: boolean;
-  animation: boolean;
   popup: boolean;
   mapDragging: boolean;
   marker: boolean;
   long: string;
   lat: string;
-  tooltiop: string;
-  icone: string;
+  tooltip: string;
+  icon: string;
 }

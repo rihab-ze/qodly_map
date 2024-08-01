@@ -11,7 +11,7 @@ const SingleMap: FC<ISingleMapProps> = ({
   zoom,
   markerDragging,
   mapDragging,
-  icone,
+  icon,
   style,
   className,
   classNames = [],
@@ -24,10 +24,10 @@ const SingleMap: FC<ISingleMapProps> = ({
 
   useEffect(() => {
     const changeIconUrl = () => {
-      setIconUrl(icone);
+      setIconUrl(icon);
     };
     changeIconUrl();
-  }, [icone]);
+  }, [icon]);
 
   useEffect(() => {
     let map: L.Map | null = null;
@@ -38,16 +38,16 @@ const SingleMap: FC<ISingleMapProps> = ({
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
 
-      var myIcone = L.divIcon({
-        html: `<i class="${iconUrl}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
+      var myIcon = L.divIcon({
+        html: `<i class="map_icon ${iconUrl}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
         className: '',
         iconAnchor: [13, 33],
       });
       const marker = L.marker([51.505, -0.09], {
         draggable: markerDragging,
-        icon: myIcone,
+        icon: myIcon,
       }).addTo(map);
-      if (popup) marker.bindPopup('your message here').openPopup();
+      if (popup) marker.bindPopup('your message here', { offset: L.point(3, -10) }).openPopup();
     }
 
     // cleanUP
@@ -58,7 +58,7 @@ const SingleMap: FC<ISingleMapProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={{ height: '100%', width: '100%' }}>
+      <div ref={mapRef} style={{ ...style, zIndex: 1 }}>
         {' '}
       </div>
     </div>
