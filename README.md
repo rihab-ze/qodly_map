@@ -6,7 +6,7 @@ Map Component for Qodly studio using [leaftletJs](https://leafletjs.com) and [Op
 
 The Uni-Marker Map Component is a mapping feature designed to display a single marker on a map, typically representing a specific location or point of interest.
 
-![map](public/uniMarker.png)
+![map](public/uniMarker.png){width=300px height=300px}
 
 | Name            | Type    | Description                                                                |
 | --------------- | ------- | -------------------------------------------------------------------------- |
@@ -38,10 +38,10 @@ Some example of data in the case of Object datasource :
 When customizing the appearance of the map, you have access to the popup message and icon class :
 ![map](public/cssClass.png)
 
-## Uni marker Map
+## Multi marker Map
 
 The Multi-Marker Map Component is a feature commonly used in mapping applications to display multiple markers on a single map. It provides a way to visualize various points of interest, locations, or data points on a geographic map.
-![map](public/multiMarker.png)
+![map](public/multiMarker.png){width=300px height=300px}
 
 | Name                  | Type    | Description                                                                |
 | --------------------- | ------- | -------------------------------------------------------------------------- |
