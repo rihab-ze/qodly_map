@@ -128,8 +128,14 @@ const MultiMap: FC<IMultiMapProps> = ({
     className: '',
     iconAnchor: [13, 33],
   });
+
   useEffect(() => {
-    if (mapRef.current) {
+    if (val.length === 0 && mapRef.current) {
+      map.current = L.map(mapRef.current).setView([30, 20], 1);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+      }).addTo(map.current);
+    } else if (mapRef.current && val.length > 0) {
       map.current = L.map(mapRef.current, { dragging: mapDragging }).setView(
         [+val[0].latitude, +val[0].longitude],
         zoom,
@@ -141,6 +147,7 @@ const MultiMap: FC<IMultiMapProps> = ({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map.current);
+
       const markers: L.MarkerClusterGroup[] = [];
       const groups = getNearbyCoordinates(val, distance);
       for (let i = 0; i < groups.length; i++) {
@@ -168,7 +175,20 @@ const MultiMap: FC<IMultiMapProps> = ({
     return () => {
       if (map) map.current?.remove();
     };
-  }, [zoom, map, mapDragging, lat, long, val]);
+  }, [map, lat, long, val]);
+
+  useEffect(() => {
+    if (!ce) return;
+    const listener = async () => {
+      const v = await ce.getValue();
+      if (v) map.current?.flyTo([+getValueByPath(v, lat), +getValueByPath(v, long)]);
+    };
+    listener();
+    ce.addListener('changed', listener);
+    return () => {
+      ce.removeListener('changed', listener);
+    };
+  }, [ce]);
 
   const handleSelectedElementChange = async ({
     index,
@@ -248,6 +268,6 @@ export default MultiMap;
 
 function isDataValid(arr: LoactionAndPopup[]): arr is LoactionAndPopup[] {
   return (
-    arr.length > 1 && arr.every((obj) => typeof obj === 'object' && obj.longitude && obj.latitude)
+    arr.length >= 0 && arr.every((obj) => typeof obj === 'object' && obj.longitude && obj.latitude)
   );
 }
