@@ -31,6 +31,7 @@ const SingleMap: FC<ISingleMapProps> = ({
   const [value, setValue] = useState<LoactionAndPopup>();
   const [size, setSize] = useState({ width: style?.width, height: style?.height });
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isPositionChanged, setIsPositionChanged] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
 
   const {
@@ -40,6 +41,7 @@ const SingleMap: FC<ISingleMapProps> = ({
     if (!ds) return;
     const listener = async (/* event */) => {
       const v = await ds.getValue();
+
       if (getValueByPath(v, long) && getValueByPath(v, lat)) {
         setValue({
           longitude: +getValueByPath(v, long),
@@ -80,28 +82,25 @@ const SingleMap: FC<ISingleMapProps> = ({
 
       if (marker) {
         markers.current = L.marker([+value!.latitude, +value!.longitude], {
-          draggable: markerDragging,
           icon: myIcon,
+          draggable: markerDragging,
         }).addTo(map.current);
+
         if (popup) {
           const popUpMessage = value!.popupMessage as HTMLElement;
           markers.current.bindPopup(popUpMessage, { offset: L.point(3, -10) });
         }
-        markers.current.on('mousedown', (event) => {
-          event.originalEvent?.stopPropagation(); // Stop the event bubbling
-        });
-      }
-      if (markerDragging) {
-        map.current?.on('click', (event: L.LeafletMouseEvent) => {
-          const { lat, lng } = event.latlng;
+        markers.current.on('moveend', (event) => {
+          const newCenter = (event.target as L.Marker).getLatLng();
           setValue({
-            longitude: lng,
-            latitude: lat,
+            longitude: newCenter.lng,
+            latitude: newCenter.lat,
             popupMessage: value!.popupMessage,
           });
-          if (markers.current) {
-            markers.current.setLatLng([lat, lng]);
-          }
+          setIsPositionChanged(true);
+        });
+        markers.current.on('mousedown', (event) => {
+          event.originalEvent?.stopPropagation(); // Stop the event bubbling
         });
       }
     }
@@ -112,19 +111,46 @@ const SingleMap: FC<ISingleMapProps> = ({
   }, [zoom, size, map, isLoaded]);
 
   useEffect(() => {
-    map.current?.flyTo([value!.latitude, value!.longitude]);
-    if (map.current && marker) {
-      markers.current?.setLatLng({
-        lat: value!.latitude,
-        lng: value!.longitude,
-      });
+    if (value && isPositionChanged) {
+      const positionChange = async () => {
+        const v = await ds.getValue();
+        function setNestedValue(obj: any, path: string, value: any): void {
+          const keys = path.split('.');
+          let target = obj;
+          for (let i = 0; i < keys.length - 1; i++) {
+            target = target[keys[i]];
+            if (target === undefined) {
+              target = {};
+            }
+          }
+          target[keys[keys.length - 1]] = value;
+        }
+        setNestedValue(v, long, value.longitude);
+        setNestedValue(v, lat, value.latitude);
 
-      if (popup) {
-        const popUpMessage = value!.popupMessage as HTMLElement;
-        markers.current?.bindPopup(popUpMessage);
+        ds.setValue(null, v);
+      };
+      positionChange();
+      setIsPositionChanged(false);
+    }
+  }, [isPositionChanged]);
+  useEffect(() => {
+    if (!isPositionChanged) {
+      map.current?.flyTo([value!.latitude, value!.longitude]);
+      if (map.current && marker) {
+        markers.current?.setLatLng({
+          lat: value!.latitude,
+          lng: value!.longitude,
+        });
+
+        if (popup) {
+          const popUpMessage = value!.popupMessage as HTMLElement;
+          markers.current?.bindPopup(popUpMessage);
+        }
       }
     }
   }, [value]);
+
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
