@@ -42,11 +42,11 @@ const MultiMap: FC<IMultiMapProps> = ({
   } = useSources();
 
   const currentDsNewPosition = async () => {
-    if (!ce) {
+    if (!ds) {
       return;
     }
-    switch (ce.type) {
-      case 'entity': {
+    switch (ds.type) {
+      case 'entitysel': {
         setVal(
           value.map((item) => ({
             longitude: item[long as keyof typeof item] as number,

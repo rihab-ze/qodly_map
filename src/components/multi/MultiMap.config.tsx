@@ -93,7 +93,7 @@ export default {
     style: { height: '400px', width: '400px' },
     zoom: 10,
     animation: true,
-    popup: false,
+    popup: true,
     mapDragging: true,
     distance: 100,
     icone: 'fa-solid fa-location-dot',

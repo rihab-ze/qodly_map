@@ -24,7 +24,7 @@ const commonSettings: TSetting[] = [
     key: 'popup',
     label: 'Popup',
     type: ESetting.CHECKBOX,
-    defaultValue: false,
+    defaultValue: true,
   },
   {
     key: 'distance',
@@ -35,7 +35,7 @@ const commonSettings: TSetting[] = [
 
   {
     key: 'icone',
-    label: 'Marker Icone',
+    label: 'Marker Icon',
     type: ESetting.ICON_PICKER,
     defaultValue: 'fa-solid fa-location-dot',
   },
