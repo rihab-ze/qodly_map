@@ -66,7 +66,6 @@ const MultiMap: FC<IMultiMapProps> = ({
         if (!bounds || (prevBounds && bounds.equals(prevBounds))) {
           return;
         }
-        console.log('bounds');
         if (source.type === 'scalar' && source.dataType === 'array') {
           // TODO: Array datasource
           //Nothing to do for now
@@ -142,6 +141,10 @@ const MultiMap: FC<IMultiMapProps> = ({
         { animate: animation },
       );
 
+      mapRef.current.addEventListener('mousedown', (event) => {
+        event.stopPropagation();
+      });
+
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(map.current);
 
       map.current.on('moveend', updateBoundsAndFetchData);
@@ -159,31 +162,40 @@ const MultiMap: FC<IMultiMapProps> = ({
     if (!mapRef.current || !map.current) return;
 
     // Clear previous markers
-    map.current.eachLayer((layer) => {
+    // find a solution so that the popup don't vanish
+    /*map.current.eachLayer((layer) => {
       if (layer instanceof L.MarkerClusterGroup) {
         map.current?.removeLayer(layer);
       }
-    });
+    });*/
 
     if (entities.length > 0) {
       const markers: L.MarkerClusterGroup[] = [];
-      const groups = getNearbyCoordinates(entities as LoactionAndPopup[], distance);
+      const groups = getNearbyCoordinates(
+        entities.map((item) => ({
+          longitude: item[long as keyof typeof item] as number,
+          latitude: item[lat as keyof typeof item] as number,
+          popupMessage: item[tooltip as keyof typeof item] as any,
+        })),
+        distance,
+      );
       for (let i = 0; i < groups.length; i++) {
         markers[i] = L.markerClusterGroup();
         for (let j = 0; j < groups[i].length; j++) {
           const marker = L.marker([+groups[i][j]?.latitude, +groups[i][j]?.longitude], {
             icon: myIcone,
           });
-          marker.on('click', (event) => {
-            const { lat, lng } = (event as L.LeafletMouseEvent).latlng;
-            const index = getLocationIndex(lat, lng, entities as LoactionAndPopup[]);
-            handleSelectedElementChange({ index, forceUpdate: true });
-          });
+
           if (groups[i][j].popupMessage && popup) {
             const popupMessage = groups[i][j].popupMessage as HTMLElement;
             marker.bindPopup(popupMessage, { offset: L.point(3, -10) });
           }
           markers[i].addLayer(marker);
+          marker.on('click', (event) => {
+            const { lat, lng } = (event as L.LeafletMouseEvent).latlng;
+            const index = getLocationIndex(lat, lng, entities as LoactionAndPopup[]);
+            handleSelectedElementChange({ index, forceUpdate: true });
+          });
         }
         map.current.addLayer(markers[i]);
       }
