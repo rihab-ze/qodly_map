@@ -1,4 +1,4 @@
-import { DataLoader, useRenderer, useSources } from '@ws-ui/webform-editor';
+import { useDataLoader, useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -10,6 +10,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { IMultiMapProps } from './MultiMap.config';
 import { updateEntity } from './hooks/useDsChangeHandler';
 import { getLocationIndex, getValueByPath, getNearbyCoordinates } from './utils';
+import { cloneDeep, debounce } from 'lodash';
 
 type LoactionAndPopup = {
   longitude: number;
@@ -32,163 +33,70 @@ const MultiMap: FC<IMultiMapProps> = ({
   classNames = [],
 }) => {
   const { connect } = useRenderer();
-  const [value, setValue] = useState<datasources.IEntity[]>(() => []);
-  const [val, setVal] = useState<LoactionAndPopup[]>(() => []);
   const [size, setSize] = useState({ width: style?.width, height: style?.height });
   const ref = useRef<HTMLElement | null>(null);
 
-  const {
-    sources: { datasource: ds, currentElement: ce },
-  } = useSources();
-
-  const currentDsNewPosition = async () => {
-    if (!ds) {
-      return;
-    }
-    switch (ds.type) {
-      case 'entitysel': {
-        setVal(
-          value.map((item) => ({
-            longitude: item[long as keyof typeof item] as number,
-            latitude: item[lat as keyof typeof item] as number,
-            popupMessage: item[tooltip as keyof typeof item] as any,
-          })),
-        );
-        break;
-      }
-      case 'scalar': {
-        if (!ds || ds.dataType !== 'array') {
-          return;
-        }
-        const v = await ds.getValue<LoactionAndPopup[]>();
-        if (v) {
-          setVal(
-            v.map((value) => ({
-              longitude: +getValueByPath(value, long),
-              latitude: +getValueByPath(value, lat),
-              popupMessage: getValueByPath(value, tooltip),
-            })),
-          );
-        }
-        break;
-      }
-    }
-  };
-
-  const loader = useMemo<DataLoader | null>(() => {
-    if (!ds) {
-      return null;
-    }
-    return DataLoader.create(ds, [
-      lat as string,
-      long as string,
-      tooltip ? (tooltip as string) : '',
-    ]);
-  }, [lat, long, ds]);
-  const updateFromLoader = useCallback(() => {
-    if (!loader) {
-      return;
-    }
-    setValue(loader.page);
-  }, [loader]);
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    loader.sourceHasChanged().then(() => updateFromLoader());
-  }, [loader]);
-
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    const dsListener = () => {
-      loader.sourceHasChanged().then(() => {
-        updateFromLoader();
-        currentDsNewPosition();
-      });
-    };
-    ds.addListener('changed', dsListener);
-    return () => {
-      ds.removeListener('changed', dsListener);
-    };
-  }, [ds]);
-
-  useEffect(() => {
-    const updatePosition = async () => {
-      await currentDsNewPosition();
-    };
-    updatePosition();
-  }, [ds, value]);
-
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
-  var myIcone = L.divIcon({
+  const {
+    sources: { datasource, currentElement: ce },
+  } = useSources();
+
+  const ds = useMemo(() => {
+    if (datasource) {
+      const clone: any = cloneDeep(datasource);
+      clone.id = `${clone.id}_clone`;
+      clone.children = {};
+      return clone;
+    }
+    return null;
+  }, [datasource?.id, (datasource as any)?.entitysel]);
+
+  const { entities, fetchIndex } = useDataLoader({
+    source: ds,
+  });
+
+  const applyBounds = useCallback(
+    debounce(
+      async (
+        source: datasources.DataSource,
+        bounds: L.LatLngBounds,
+        prevBounds?: L.LatLngBounds,
+      ) => {
+        if (!bounds || (prevBounds && bounds.equals(prevBounds))) {
+          return;
+        }
+        console.log('bounds');
+        if (source.type === 'scalar' && source.dataType === 'array') {
+          // TODO: Array datasource
+          //Nothing to do for now
+        } else {
+          const { entitysel } = source as any;
+          const dataSetName = entitysel?.getServerRef();
+          const queryStr = `${lat} > ${bounds.getSouth()} AND ${lat} < ${bounds.getNorth()} AND ${long} > ${bounds.getWest()} AND ${long} < ${bounds.getEast()}`;
+
+          (source as any).entitysel = source.dataclass.query(queryStr, {
+            dataSetName,
+            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
+          });
+
+          fetchIndex(0);
+        }
+      },
+      300,
+    ),
+    [],
+  );
+
+  useEffect(() => {
+    fetchIndex(0);
+  }, [ds]);
+
+  let myIcone = L.divIcon({
     html: `<i class="map_icon ${icone}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
     className: '',
     iconAnchor: [13, 33],
   });
-
-  useEffect(() => {
-    if (val.length === 0 && mapRef.current) {
-      map.current = L.map(mapRef.current).setView([30, 20], 1);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-      }).addTo(map.current);
-    } else if (mapRef.current && val.length > 0) {
-      map.current = L.map(mapRef.current, { dragging: mapDragging }).setView(
-        [+val[0].latitude, +val[0].longitude],
-        zoom,
-        { animate: animation },
-      );
-      mapRef.current.addEventListener('mousedown', (event) => {
-        event.stopPropagation();
-      });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-      }).addTo(map.current);
-
-      const markers: L.MarkerClusterGroup[] = [];
-      const groups = getNearbyCoordinates(val, distance);
-      for (let i = 0; i < groups.length; i++) {
-        markers[i] = L.markerClusterGroup();
-        for (let j = 0; j < groups[i].length; j++) {
-          const marker = L.marker([+groups[i][j]?.latitude, +groups[i][j]?.longitude], {
-            icon: myIcone,
-          });
-          marker.on('click', (event) => {
-            const { lat, lng } = (event as L.LeafletMouseEvent).latlng;
-            const index = getLocationIndex(lat, lng, val);
-            handleSelectedElementChange({ index, forceUpdate: true });
-          });
-          if (groups[i][j].popupMessage && popup) {
-            const popupMessage = groups[i][j].popupMessage as HTMLElement;
-            marker.bindPopup(popupMessage, { offset: L.point(3, -10) });
-          }
-          markers[i].addLayer(marker);
-        }
-        map.current.addLayer(markers[i]);
-      }
-    }
-    // cleanUP
-
-    return () => {
-      if (map) map.current?.remove();
-    };
-  }, [map, lat, long, val]);
-
-  useEffect(() => {
-    if (!ce) return;
-    const listener = async () => {
-      const v = await ce.getValue();
-      if (v) map.current?.flyTo([+getValueByPath(v, lat), +getValueByPath(v, long)]);
-    };
-    listener();
-    ce.addListener('changed', listener);
-    return () => {
-      ce.removeListener('changed', listener);
-    };
-  }, [ce]);
 
   const handleSelectedElementChange = async ({
     index,
@@ -201,7 +109,6 @@ const MultiMap: FC<IMultiMapProps> = ({
     if (!ds || !ce) {
       return;
     }
-
     switch (ce.type) {
       case 'entity': {
         await updateEntity({ index, datasource: ds, currentElement: ce, fireEvent });
@@ -217,6 +124,84 @@ const MultiMap: FC<IMultiMapProps> = ({
       }
     }
   };
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const updateBoundsAndFetchData = () => {
+      const bounds = map.current?.getBounds();
+      if (bounds && ds) {
+        applyBounds(ds, bounds);
+      }
+    };
+
+    if (mapRef.current) {
+      map.current = L.map(mapRef.current, { dragging: mapDragging }).setView(
+        [51.505, -0.09],
+        zoom,
+        { animate: animation },
+      );
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(map.current);
+
+      map.current.on('moveend', updateBoundsAndFetchData);
+    }
+
+    return () => {
+      if (map.current) {
+        map.current.off();
+        map.current.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current || !map.current) return;
+
+    // Clear previous markers
+    map.current.eachLayer((layer) => {
+      if (layer instanceof L.MarkerClusterGroup) {
+        map.current?.removeLayer(layer);
+      }
+    });
+
+    if (entities.length > 0) {
+      const markers: L.MarkerClusterGroup[] = [];
+      const groups = getNearbyCoordinates(entities as LoactionAndPopup[], distance);
+      for (let i = 0; i < groups.length; i++) {
+        markers[i] = L.markerClusterGroup();
+        for (let j = 0; j < groups[i].length; j++) {
+          const marker = L.marker([+groups[i][j]?.latitude, +groups[i][j]?.longitude], {
+            icon: myIcone,
+          });
+          marker.on('click', (event) => {
+            const { lat, lng } = (event as L.LeafletMouseEvent).latlng;
+            const index = getLocationIndex(lat, lng, entities as LoactionAndPopup[]);
+            handleSelectedElementChange({ index, forceUpdate: true });
+          });
+          if (groups[i][j].popupMessage && popup) {
+            const popupMessage = groups[i][j].popupMessage as HTMLElement;
+            marker.bindPopup(popupMessage, { offset: L.point(3, -10) });
+          }
+          markers[i].addLayer(marker);
+        }
+        map.current.addLayer(markers[i]);
+      }
+    }
+  }, [entities, map.current]);
+
+  useEffect(() => {
+    if (!ce) return;
+    const listener = async () => {
+      const v = await ce.getValue();
+      if (v) map.current?.flyTo([+getValueByPath(v, lat), +getValueByPath(v, long)]);
+    };
+    listener();
+    ce.addListener('changed', listener);
+    return () => {
+      ce.removeListener('changed', listener);
+    };
+  }, [ce]);
 
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
@@ -236,6 +221,7 @@ const MultiMap: FC<IMultiMapProps> = ({
       }
     };
   }, []);
+
   return (
     <div
       ref={(R) => {
@@ -245,7 +231,7 @@ const MultiMap: FC<IMultiMapProps> = ({
       style={style}
       className={cn(className, classNames)}
     >
-      {isDataValid(val) ? (
+      {isDataValid(entities) ? (
         <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
       ) : (
         <div
@@ -266,8 +252,9 @@ const MultiMap: FC<IMultiMapProps> = ({
 
 export default MultiMap;
 
-function isDataValid(arr: LoactionAndPopup[]): arr is LoactionAndPopup[] {
+const isDataValid = (arr: any[]) => {
   return (
-    arr.length >= 0 && arr.every((obj) => typeof obj === 'object' && obj.longitude && obj.latitude)
+    arr.length >= 0 &&
+    arr.every((obj) => typeof obj === 'object' && 'latitude' in obj && 'longitude' in obj)
   );
-}
+};

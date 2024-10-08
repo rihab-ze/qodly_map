@@ -10,7 +10,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { IMultiMapProps } from './MultiMap.config';
 
 const MultiMap: FC<IMultiMapProps> = ({
-  popup,
   zoom,
   mapDragging,
   style,
