@@ -1,8 +1,8 @@
 {
   "app_id": "qodly_3b8aec04c848604940a7",
-  "name": "qoldy_mapsingle",
+  "name": "qoldy_map",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
   "type": "module",
   "author": {
     "name": "Qodly Team",
