@@ -1,6 +1,5 @@
 import {
   EComponentKind,
-  IExostiveElementProps,
   splitDatasourceID,
   T4DComponentConfig,
   T4DComponentDatasourceDeclaration,
@@ -58,7 +57,7 @@ export default {
       },
     ],
     datasources: {
-      declarations: (props) => {
+      declarations: (props: any) => {
         const { lat, long, tooltip, datasource = '' } = props;
         const declarations: T4DComponentDatasourceDeclaration[] = [
           { path: datasource, iterable: true },

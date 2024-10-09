@@ -5,7 +5,7 @@ type LoactionAndPopup = {
 };
 
 export function getNearbyCoordinates(
-  coordinates: LoactionAndPopup[],
+  coordinates: any[],
   distanceThreshold: number,
 ): LoactionAndPopup[][] {
   const result: LoactionAndPopup[][] = [];
