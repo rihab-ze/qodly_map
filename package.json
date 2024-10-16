@@ -1,0 +1,43 @@
+{
+  "app_id": "qodly_6fa741d64953ed9604fa",
+  "name": "qodly_map",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "author": {
+    "name": "Qodly Team",
+    "email": "contact@qodly.com",
+    "url": "https://qodly.com"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "qodly build",
+    "generate:component": "qodly new component",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,jsx,html,css}\""
+  },
+  "dependencies": {
+    "@types/leaflet": "^1.9.12",
+    "@types/leaflet.markercluster": "^1.5.4",
+    "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
+    "@ws-ui/webform-editor": "0.3.28",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@qodly/cli": "^0.2.12",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "@ws-ui/vite-plugins": "^1.0.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
+  }
+}
