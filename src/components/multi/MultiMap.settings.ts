@@ -55,17 +55,17 @@ const dataAccessSettings: TSetting[] = [
   {
     key: 'long',
     label: 'Longitude',
-    type: ESetting.TEXT_FIELD,
+    type: ESetting.DS_AUTO_SUGGEST,
   },
   {
     key: 'lat',
     label: 'Latitude',
-    type: ESetting.TEXT_FIELD,
+    type: ESetting.DS_AUTO_SUGGEST,
   },
   {
     key: 'tooltip',
     label: 'Tooltip',
-    type: ESetting.TEXT_FIELD,
+    type: ESetting.DS_AUTO_SUGGEST,
   },
   {
     key: 'serverSideRef',
