@@ -35,7 +35,7 @@ const MultiMap: FC<IMultiMapProps> = ({
   const { connect } = useRenderer();
   const [size, setSize] = useState({ width: style?.width, height: style?.height });
   const ref = useRef<HTMLElement | null>(null);
-
+  const [value, setValue] = useState<LoactionAndPopup[]>(() => []);
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const {
@@ -67,8 +67,16 @@ const MultiMap: FC<IMultiMapProps> = ({
           return;
         }
         if (source.type === 'scalar' && source.dataType === 'array') {
-          // TODO: Array datasource
-          //Nothing to do for now
+          const v = await ds.getValue();
+          if (v) {
+            setValue(
+              v.map((value: any) => ({
+                longitude: +getValueByPath(value, long),
+                latitude: +getValueByPath(value, lat),
+                popupMessage: getValueByPath(value, tooltip),
+              })),
+            );
+          }
         } else {
           const { entitysel } = source as any;
           const dataSetName = entitysel?.getServerRef();
@@ -169,16 +177,18 @@ const MultiMap: FC<IMultiMapProps> = ({
       }
     });*/
 
-    if (entities.length > 0) {
+    if (entities.length > 0 || value.length > 0) {
       const markers: L.MarkerClusterGroup[] = [];
-      const groups = getNearbyCoordinates(
-        entities.map((item) => ({
-          longitude: item[long as keyof typeof item] as number,
-          latitude: item[lat as keyof typeof item] as number,
-          popupMessage: item[tooltip as keyof typeof item] as any,
-        })),
-        distance,
-      );
+      const groups = value
+        ? getNearbyCoordinates(value, distance)
+        : getNearbyCoordinates(
+            entities.map((item) => ({
+              longitude: item[long as keyof typeof item] as number,
+              latitude: item[lat as keyof typeof item] as number,
+              popupMessage: item[tooltip as keyof typeof item] as any,
+            })),
+            distance,
+          );
       for (let i = 0; i < groups.length; i++) {
         markers[i] = L.markerClusterGroup();
         for (let j = 0; j < groups[i].length; j++) {
@@ -193,14 +203,18 @@ const MultiMap: FC<IMultiMapProps> = ({
           markers[i].addLayer(marker);
           marker.on('click', (event) => {
             const { lat, lng } = (event as L.LeafletMouseEvent).latlng;
-            const index = getLocationIndex(lat, lng, entities as LoactionAndPopup[]);
+            const index = getLocationIndex(
+              lat,
+              lng,
+              value ? value : (entities as LoactionAndPopup[]),
+            );
             handleSelectedElementChange({ index, forceUpdate: true });
           });
         }
         map.current.addLayer(markers[i]);
       }
     }
-  }, [entities, map.current]);
+  }, [entities, map.current, value]);
 
   useEffect(() => {
     if (!ce) return;
@@ -243,7 +257,7 @@ const MultiMap: FC<IMultiMapProps> = ({
       style={style}
       className={cn(className, classNames)}
     >
-      {isDataValid(entities) ? (
+      {isDataValid(value ? value : entities) ? (
         <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
       ) : (
         <div
