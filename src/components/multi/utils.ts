@@ -76,3 +76,10 @@ export const getLocationIndex = (
     (location) => +location.longitude === lon && +location.latitude === lat,
   );
 };
+
+export const isDataValid = (arr: any[]) => {
+  return (
+    arr.length >= 0 &&
+    arr.every((obj) => typeof obj === 'object' && 'latitude' in obj && 'longitude' in obj)
+  );
+};
