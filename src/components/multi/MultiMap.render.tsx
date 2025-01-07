@@ -6,10 +6,14 @@ import L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-
+import {
+  useEnhancedNode,
+  useDsChangeHandler,
+  entitySubject,
+  EntityActions,
+} from '@ws-ui/webform-editor';
 import { IMultiMapProps } from './MultiMap.config';
-import { updateEntity } from './hooks/useDsChangeHandler';
-import { getLocationIndex, getValueByPath, getNearbyCoordinates } from './utils';
+import { getLocationIndex, getValueByPath, getNearbyCoordinates, isDataValid } from './utils';
 import { cloneDeep, debounce } from 'lodash';
 
 type LoactionAndPopup = {
@@ -33,14 +37,23 @@ const MultiMap: FC<IMultiMapProps> = ({
   classNames = [],
 }) => {
   const { connect } = useRenderer();
+  const { id: nodeID } = useEnhancedNode();
   const [size, setSize] = useState({ width: style?.width, height: style?.height });
   const ref = useRef<HTMLElement | null>(null);
-  const [value, setValue] = useState<LoactionAndPopup[]>(() => []);
+  const [selected, setSelected] = useState(-1);
+  const [_scrollIndex, setScrollIndex] = useState(0);
+  const [_count, setCount] = useState(0);
+  const [allEntities, setAllEntites] = useState<any[]>(() => []);
+  const [values, setValues] = useState<LoactionAndPopup[]>(() => []);
+  const [entities, setEntities] = useState<any[]>(() => []);
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
+
   const {
     sources: { datasource, currentElement: ce },
-  } = useSources();
+  } = useSources({
+    acceptIteratorSel: true,
+  });
 
   const ds = useMemo(() => {
     if (datasource) {
@@ -52,93 +65,117 @@ const MultiMap: FC<IMultiMapProps> = ({
     return null;
   }, [datasource?.id, (datasource as any)?.entitysel]);
 
-  const { entities, fetchIndex } = useDataLoader({
+  const { fetchIndex } = useDataLoader({
+    source: datasource,
+  });
+
+  const { fetchIndex: fetchIndexClone } = useDataLoader({
     source: ds,
   });
 
   const applyBounds = useCallback(
-    debounce(
-      async (
-        source: datasources.DataSource,
-        bounds: L.LatLngBounds,
-        prevBounds?: L.LatLngBounds,
-      ) => {
-        if (!bounds || (prevBounds && bounds.equals(prevBounds))) {
-          return;
+    debounce(async (bounds: L.LatLngBounds, prevBounds?: L.LatLngBounds) => {
+      if (!bounds || (prevBounds && bounds.equals(prevBounds))) {
+        return;
+      }
+      if (ds.type === 'scalar' && ds.dataType === 'array') {
+        const v = await ds.getValue();
+        if (v) {
+          setValues(
+            v.map((value: any) => ({
+              longitude: +getValueByPath(value, long),
+              latitude: +getValueByPath(value, lat),
+              popupMessage: getValueByPath(value, tooltip),
+            })),
+          );
         }
-        if (source.type === 'scalar' && source.dataType === 'array') {
-          const v = await ds.getValue();
-          if (v) {
-            setValue(
-              v.map((value: any) => ({
-                longitude: +getValueByPath(value, long),
-                latitude: +getValueByPath(value, lat),
-                popupMessage: getValueByPath(value, tooltip),
-              })),
-            );
-          }
-        } else {
-          const { entitysel } = source as any;
-          const dataSetName = entitysel?.getServerRef();
-          const queryStr = `${lat} > ${bounds.getSouth()} AND ${lat} < ${bounds.getNorth()} AND ${long} > ${bounds.getWest()} AND ${long} < ${bounds.getEast()}`;
+      } else {
+        const { entitysel } = ds as any;
+        const dataSetName = entitysel?.getServerRef();
+        const queryStr = `${lat} > ${bounds.getSouth()} AND ${lat} < ${bounds.getNorth()} AND ${long} > ${bounds.getWest()} AND ${long} < ${bounds.getEast()}`;
 
-          (source as any).entitysel = source.dataclass.query(queryStr, {
-            dataSetName,
-            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
-          });
-
-          fetchIndex(0);
-        }
-      },
-      300,
-    ),
-    [],
+        (ds as any).entitysel = ds.dataclass.query(queryStr, {
+          dataSetName,
+          filterAttributes: ds.filterAttributesText || ds._private.filterAttributes,
+        });
+        const data = await fetchIndexClone(0);
+        setEntities(data);
+      }
+    }, 300),
+    [ds],
   );
 
   useEffect(() => {
-    fetchIndex(0);
+    const fetchData = async () => {
+      const data = await fetchIndex(0);
+      setEntities(data);
+    };
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchIndex(0);
+      setAllEntites(
+        data.map((item) => ({
+          longitude: item[long as keyof typeof item] as number,
+          latitude: item[lat as keyof typeof item] as number,
+          popupMessage: item[tooltip as keyof typeof item] as any,
+        })),
+      );
+    };
+    fetchData();
   }, [ds]);
-
   let myIcone = L.divIcon({
     html: `<i class="map_icon ${icone}" style="font-size: 30px ; display: flex; align-items: center; justify-content: center; width: 32px; height: 42px"></i>`,
     className: '',
     iconAnchor: [13, 33],
   });
+  const { updateCurrentDsValue } = useDsChangeHandler({
+    source: datasource,
+    currentDs: ce,
+    selected,
+    setSelected,
+    setScrollIndex,
+    setCount,
+    fetchIndex,
+    onDsChange: async (length, selected) => {
+      const data = await fetchIndex(0);
+      setEntities(data);
+      if (selected >= 0) {
+        updateCurrentDsValue({
+          index: selected < length ? selected : 0,
+          forceUpdate: true,
+        });
+      }
+    },
+    onCurrentDsChange: (selected) => {
+      entitySubject.next({
+        action: EntityActions.UPDATE,
+        payload: {
+          nodeID,
+          rowIndex: selected,
+        },
+      });
+    },
+  });
 
-  const handleSelectedElementChange = async ({
-    index,
-    fireEvent = true,
-  }: {
-    index: number;
-    forceUpdate?: boolean;
-    fireEvent?: boolean;
-  }) => {
+  const handleSelectedElementChange = async ({ index }: { index: number }) => {
     if (!ds || !ce) {
       return;
     }
-    switch (ce.type) {
-      case 'entity': {
-        await updateEntity({ index, datasource: ds, currentElement: ce, fireEvent });
-        break;
-      }
-      case 'scalar': {
-        if (ds.dataType !== 'array') {
-          return;
-        }
-        const value = await ds.getValue();
-        await ce.setValue(null, value[index]);
-        break;
-      }
-    }
+    const value = await ds.getValue();
+    await ce.setValue(null, value[index]);
   };
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    console.log(datasource.type);
+
+    if (!mapRef.current && !ds) return;
 
     const updateBoundsAndFetchData = () => {
       const bounds = map.current?.getBounds();
-      if (bounds && ds) {
-        applyBounds(ds, bounds);
+      if (bounds) {
+        applyBounds(bounds);
       }
     };
 
@@ -169,28 +206,27 @@ const MultiMap: FC<IMultiMapProps> = ({
   useEffect(() => {
     if (!mapRef.current || !map.current) return;
 
-    // Clear previous markers
-    // find a solution so that the popup don't vanish
-    /*map.current.eachLayer((layer) => {
-      if (layer instanceof L.MarkerClusterGroup) {
-        map.current?.removeLayer(layer);
-      }
-    });*/
+    if (entities.length > 0 || values.length > 0) {
+      const groups =
+        datasource.type === 'scalar'
+          ? getNearbyCoordinates(values, distance)
+          : getNearbyCoordinates(
+              entities.map((item) => ({
+                longitude: item[long as keyof typeof item] as number,
+                latitude: item[lat as keyof typeof item] as number,
+                popupMessage: item[tooltip as keyof typeof item] as any,
+              })),
+              distance,
+            );
 
-    if (entities.length > 0 || value.length > 0) {
-      const markers: L.MarkerClusterGroup[] = [];
-      const groups = value
-        ? getNearbyCoordinates(value, distance)
-        : getNearbyCoordinates(
-            entities.map((item) => ({
-              longitude: item[long as keyof typeof item] as number,
-              latitude: item[lat as keyof typeof item] as number,
-              popupMessage: item[tooltip as keyof typeof item] as any,
-            })),
-            distance,
-          );
+      map.current?.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          layer.remove();
+        }
+      });
+      const markers = L.markerClusterGroup();
+      const markerList = [];
       for (let i = 0; i < groups.length; i++) {
-        markers[i] = L.markerClusterGroup();
         for (let j = 0; j < groups[i].length; j++) {
           const marker = L.marker([+groups[i][j]?.latitude, +groups[i][j]?.longitude], {
             icon: myIcone,
@@ -200,21 +236,23 @@ const MultiMap: FC<IMultiMapProps> = ({
             const popupMessage = groups[i][j].popupMessage as HTMLElement;
             marker.bindPopup(popupMessage, { offset: L.point(3, -10) });
           }
-          markers[i].addLayer(marker);
-          marker.on('click', (event) => {
+          markerList.push(marker);
+          marker.on('click', async (event) => {
             const { lat, lng } = (event as L.LeafletMouseEvent).latlng;
-            const index = getLocationIndex(
-              lat,
-              lng,
-              value ? value : (entities as LoactionAndPopup[]),
-            );
-            handleSelectedElementChange({ index, forceUpdate: true });
+            if (datasource.type === 'scalar') {
+              const index = getLocationIndex(lat, lng, values);
+              handleSelectedElementChange({ index });
+            } else {
+              const index = getLocationIndex(lat, lng, allEntities as LoactionAndPopup[]);
+              updateCurrentDsValue({ index, forceUpdate: true });
+            }
           });
         }
-        map.current.addLayer(markers[i]);
+        markers.addLayers(markerList);
+        map.current.addLayer(markers);
       }
     }
-  }, [entities, map.current, value]);
+  }, [entities, map.current, values]);
 
   useEffect(() => {
     if (!ce) return;
@@ -228,7 +266,6 @@ const MultiMap: FC<IMultiMapProps> = ({
       ce.removeListener('changed', listener);
     };
   }, [ce]);
-
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -257,7 +294,7 @@ const MultiMap: FC<IMultiMapProps> = ({
       style={style}
       className={cn(className, classNames)}
     >
-      {isDataValid(value ? value : entities) ? (
+      {isDataValid(values ? values : entities) ? (
         <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
       ) : (
         <div
@@ -278,9 +315,9 @@ const MultiMap: FC<IMultiMapProps> = ({
 
 export default MultiMap;
 
-const isDataValid = (arr: any[]) => {
-  return (
-    arr.length >= 0 &&
-    arr.every((obj) => typeof obj === 'object' && 'latitude' in obj && 'longitude' in obj)
-  );
-};
+// const isDataValid = (arr: any[]) => {
+//   return (
+//     arr.length >= 0 &&
+//     arr.every((obj) => typeof obj === 'object' && 'latitude' in obj && 'longitude' in obj)
+//   );
+// };
