@@ -91,18 +91,21 @@ const MultiMap: FC<IMultiMapProps> = ({
         }
       } else {
         const { entitysel } = ds as any;
-        const dataSetName = entitysel?.getServerRef();
+        // const dataSetName = entitysel?.getServerRef();
         const queryStr = `${lat} > ${bounds.getSouth()} AND ${lat} < ${bounds.getNorth()} AND ${long} > ${bounds.getWest()} AND ${long} < ${bounds.getEast()}`;
 
+        const _settings = ds.buildSelectionSettings();
         (ds as any).entitysel = ds.dataclass.query(queryStr, {
-          dataSetName,
-          filterAttributes: ds.filterAttributesText || ds._private.filterAttributes,
+          ..._settings,
+          // dataSetName,
+          filterAttributes: ds.filterAttributesText || entitysel._private.filterAttributes,
         });
-        const data = await fetchIndexClone(0);
-        setEntities(data);
+        // const data = await fetchIndexClone(0);
+        // setEntities(data);
+        fetchIndexClone(0);
       }
     }, 300),
-    [ds],
+    [ds, lat, long],
   );
 
   useEffect(() => {
