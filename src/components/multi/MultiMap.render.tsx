@@ -55,21 +55,15 @@ const MultiMap: FC<IMultiMapProps> = ({
     acceptIteratorSel: true,
   });
 
-  const ds = useMemo(() => {
-    if (datasource) {
-      const clone: any = cloneDeep(datasource);
-      clone.id = `${clone.id}_clone`;
-      clone.children = {};
-      return clone;
-    }
-    return null;
-  }, [datasource?.id, (datasource as any)?.entitysel]);
-
   const { fetchIndex } = useDataLoader({
     source: datasource,
   });
 
-  const { fetchIndex: fetchIndexClone } = useDataLoader({
+  const {
+    fetchIndex: fetchIndexClone,
+    query,
+    loaderDatasource: ds,
+  } = useDataLoader({
     source: ds,
   });
 
@@ -90,18 +84,18 @@ const MultiMap: FC<IMultiMapProps> = ({
           );
         }
       } else {
-        const { entitysel } = ds as any;
-        // const dataSetName = entitysel?.getServerRef();
-        const queryStr = `${lat} > ${bounds.getSouth()} AND ${lat} < ${bounds.getNorth()} AND ${long} > ${bounds.getWest()} AND ${long} < ${bounds.getEast()}`;
+        const queryStr = `${lat} > :1 AND ${lat} < :2 $ AND ${long} > :3 AND ${long} < :4`;
+        const placeholders = [
+          bounds.getSouth(),
+          bounds.getNorth(),
+          bounds.getWest(),
+          bounds.getEast(),
+        ];
 
-        const _settings = ds.buildSelectionSettings();
-        (ds as any).entitysel = ds.dataclass.query(queryStr, {
-          ..._settings,
-          // dataSetName,
-          filterAttributes: ds.filterAttributesText || entitysel._private.filterAttributes,
+        query.entitysel({
+          queryString: queryStr,
+          placeholders,
         });
-        // const data = await fetchIndexClone(0);
-        // setEntities(data);
         fetchIndexClone(0);
       }
     }, 300),
