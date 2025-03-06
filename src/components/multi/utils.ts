@@ -2,6 +2,7 @@ type LoactionAndPopup = {
   longitude: number;
   latitude: number;
   popupMessage?: HTMLElement | null;
+  [key: string]: any;
 };
 
 export function getNearbyCoordinates(
@@ -71,9 +72,11 @@ export const getLocationIndex = (
   lat: number,
   lon: number,
   locationArray: LoactionAndPopup[],
+  latKey?: string,
+  lonKey?: string,
 ): number => {
   return locationArray.findIndex(
-    (location) => +location.longitude === lon && +location.latitude === lat,
+    (location) => (latKey && lonKey ? +location[lonKey] === lon && +location[latKey] === lat : location.latitude === lat && location.longitude === lon),
   );
 };
 

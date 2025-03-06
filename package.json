@@ -2,7 +2,7 @@
   "app_id": "qodly_6fa741d64953ed9604fa",
   "name": "qodly_map",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "author": {
     "name": "Qodly Team",
@@ -19,14 +19,14 @@
   "dependencies": {
     "@types/leaflet": "^1.9.12",
     "@types/leaflet.markercluster": "^1.5.4",
-    "@ws-ui/webform-editor": "0.3.58",
+    "@ws-ui/webform-editor": "0.4.13",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@qodly/cli": "^0.2.20",
+    "@qodly/cli": "^0.3.1",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
