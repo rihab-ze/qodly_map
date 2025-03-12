@@ -1,4 +1,9 @@
-import { useDataLoader, useRenderer, useSources } from '@ws-ui/webform-editor';
+import {
+  unsubscribeFromDatasource,
+  useDataLoader,
+  useRenderer,
+  useSources,
+} from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -9,6 +14,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { IMultiMapProps } from './MultiMap.config';
 import { getLocationIndex, getValueByPath, getNearbyCoordinates, isDataValid } from './utils';
 import { debounce } from 'lodash';
+import findIndex from 'lodash/findIndex';
 import { updateEntity } from '././hooks/useDsChangeHandler';
 
 type LoactionAndPopup = {
@@ -39,18 +45,14 @@ const MultiMap: FC<IMultiMapProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const isFlyingRef = useRef(false);
-
+  const hasInitialFlyRef = useRef(false);
   const {
     sources: { datasource, currentElement: ce },
   } = useSources({
     acceptIteratorSel: true,
   });
 
-  const {
-    fetchIndex,
-    query,
-    loaderDatasource: ds,
-  } = useDataLoader({
+  const { fetchIndex, query, loaderDatasource } = useDataLoader({
     source: datasource,
   });
 
@@ -101,17 +103,27 @@ const MultiMap: FC<IMultiMapProps> = ({
                 const index = getLocationIndex(latitude, lng, values);
                 handleSelectedElementChange({ index });
               } else {
-                const index = getLocationIndex(
-                  latitude,
-                  lng,
-                  entities as LoactionAndPopup[],
-                  lat,
-                  long,
+                const index = findIndex(
+                  entities,
+                  (e: any) => e[long] === lng && e[lat] === latitude,
                 );
                 handleSelectedElementChange({ index });
               }
               map.current?.flyTo([latitude, lng], map.current.getZoom(), { animate: animation });
             });
+          }
+
+          if ((!ce || ce.initialValue === null) && !hasInitialFlyRef.current) {
+            isFlyingRef.current = true;
+            hasInitialFlyRef.current = true;
+            if (ce) {
+              handleSelectedElementChange({ index: 0 });
+            }
+            map.current?.flyTo(
+              [+groups[0][0]?.latitude, +groups[0][0]?.longitude],
+              map.current.getZoom(),
+              { animate: animation },
+            );
           }
           markers.addLayers(markerList);
           map.current.addLayer(markers);
@@ -120,8 +132,10 @@ const MultiMap: FC<IMultiMapProps> = ({
     },
     [map.current, values, entities.current],
   );
+
   useEffect(() => {
-    if (!ce) return;
+    if (!ce || hasInitialFlyRef) return;
+
     const listener = async () => {
       const v = await ce.getValue();
       if (v) map.current?.flyTo([+getValueByPath(v, lat), +getValueByPath(v, long)]);
@@ -132,25 +146,34 @@ const MultiMap: FC<IMultiMapProps> = ({
       ce.removeListener('changed', listener);
     };
   }, [ce]);
+
   useEffect(() => {
-    if (!ds) return;
+    if (!datasource) return;
 
     const listener = async (/* event */) => {
-      const v = await ds.getValue();
+      const v = await datasource.getValue();
       if (v) {
-        if (ds.type == 'entitysel') {
+        if (datasource.type == 'entitysel') {
           entities.current = v._private.curPage.entitiesDef;
-          entities.current = await fetchIndex(0);
+          hasInitialFlyRef.current = false;
           fetchData(entities.current);
         }
       }
     };
     listener();
-    ds.addListener('changed', listener);
+    datasource.addListener('changed', listener);
     return () => {
-      ds.removeListener('changed', listener);
+      datasource.removeListener('changed', listener);
     };
-  }, [ds]);
+  }, [datasource]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      entities.current = await fetchIndex(0);
+      fetchData(entities.current);
+    };
+    fetch();
+  }, [loaderDatasource]);
 
   const handleSelectedElementChange = async ({
     index,
@@ -160,19 +183,21 @@ const MultiMap: FC<IMultiMapProps> = ({
     forceUpdate?: boolean;
     fireEvent?: boolean;
   }) => {
-    if (!ds || !ce) {
+    if (!datasource || !ce) {
       return;
     }
     switch (ce.type) {
       case 'entity': {
-        await updateEntity({ index, datasource: ds, currentElement: ce, fireEvent });
+        console.log(datasource, 'datasource');
+
+        await updateEntity({ index, datasource: datasource, currentElement: ce, fireEvent });
         break;
       }
       case 'scalar': {
-        if (ds.dataType !== 'array') {
+        if (datasource.dataType !== 'array') {
           return;
         }
-        const value = await ds.getValue();
+        const value = await datasource.getValue();
         await ce.setValue(null, value[index]);
         break;
       }
@@ -180,13 +205,13 @@ const MultiMap: FC<IMultiMapProps> = ({
   };
 
   const applyBounds = useCallback(
-    debounce(async (bounds: L.LatLngBounds) => {
+    async (bounds: L.LatLngBounds) => {
       if (!bounds || isFlyingRef.current) {
         isFlyingRef.current = false;
         return;
       }
-      if (ds.type === 'scalar' && ds.dataType === 'array') {
-        const v = await ds.getValue();
+      if (datasource.type === 'scalar' && datasource.dataType === 'array') {
+        const v = await datasource.getValue();
         if (v) {
           setValues(
             v.map((value: any) => ({
@@ -209,11 +234,9 @@ const MultiMap: FC<IMultiMapProps> = ({
           queryString: queryStr,
           placeholders,
         });
-        entities.current = await fetchIndex(0);
-        fetchData(entities.current);
       }
-    }, 500),
-    [query, fetchIndex],
+    },
+    [query, fetchIndex, loaderDatasource],
   );
 
   useEffect(() => {
