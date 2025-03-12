@@ -13,7 +13,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { IMultiMapProps } from './MultiMap.config';
 import { getLocationIndex, getValueByPath, getNearbyCoordinates, isDataValid } from './utils';
-import { debounce } from 'lodash';
 import findIndex from 'lodash/findIndex';
 import { updateEntity } from '././hooks/useDsChangeHandler';
 
@@ -70,14 +69,7 @@ const MultiMap: FC<IMultiMapProps> = ({
         const groups =
           datasource.type === 'scalar'
             ? getNearbyCoordinates(values, distance)
-            : getNearbyCoordinates(
-                entities.map((item) => ({
-                  longitude: item[long as keyof typeof item] as number,
-                  latitude: item[lat as keyof typeof item] as number,
-                  popupMessage: item[tooltip as keyof typeof item] as any,
-                })),
-                distance,
-              );
+            : getNearbyCoordinates(entities, distance);
 
         map.current?.eachLayer((layer) => {
           if (!(layer instanceof L.TileLayer)) {
@@ -112,21 +104,20 @@ const MultiMap: FC<IMultiMapProps> = ({
               map.current?.flyTo([latitude, lng], map.current.getZoom(), { animate: animation });
             });
           }
-
-          if ((!ce || ce.initialValue === null) && !hasInitialFlyRef.current) {
-            isFlyingRef.current = true;
-            hasInitialFlyRef.current = true;
-            if (ce) {
-              handleSelectedElementChange({ index: 0 });
-            }
-            map.current?.flyTo(
-              [+groups[0][0]?.latitude, +groups[0][0]?.longitude],
-              map.current.getZoom(),
-              { animate: animation },
-            );
-          }
           markers.addLayers(markerList);
           map.current.addLayer(markers);
+        }
+        if ((!ce || ce.initialValue === null) && !hasInitialFlyRef.current) {
+          isFlyingRef.current = true;
+          hasInitialFlyRef.current = true;
+          if (ce) {
+            handleSelectedElementChange({ index: 0 });
+          }
+          map.current?.flyTo(
+            [+groups[0][0]?.latitude, +groups[0][0]?.longitude],
+            map.current.getZoom(),
+            { animate: animation },
+          );
         }
       }
     },
@@ -134,7 +125,7 @@ const MultiMap: FC<IMultiMapProps> = ({
   );
 
   useEffect(() => {
-    if (!ce || hasInitialFlyRef) return;
+    if (!ce || (hasInitialFlyRef && datasource.type == 'entitysel')) return;
 
     const listener = async () => {
       const v = await ce.getValue();
@@ -154,9 +145,22 @@ const MultiMap: FC<IMultiMapProps> = ({
       const v = await datasource.getValue();
       if (v) {
         if (datasource.type == 'entitysel') {
-          entities.current = v._private.curPage.entitiesDef;
+          entities.current = v._private.curPage.entitiesDef.map((item: any) => ({
+            longitude: item[long as keyof typeof item] as number,
+            latitude: item[lat as keyof typeof item] as number,
+            popupMessage: item[tooltip as keyof typeof item] as any,
+          }));
           hasInitialFlyRef.current = false;
           fetchData(entities.current);
+        } else {
+          setValues(
+            v.map((value: any) => ({
+              longitude: +getValueByPath(value, long),
+              latitude: +getValueByPath(value, lat),
+              popupMessage: getValueByPath(value, tooltip),
+            })),
+          );
+          fetchData(values);
         }
       }
     };
@@ -168,8 +172,15 @@ const MultiMap: FC<IMultiMapProps> = ({
   }, [datasource]);
 
   useEffect(() => {
+    if (datasource.type != 'entitysel') return;
     const fetch = async () => {
-      entities.current = await fetchIndex(0);
+      const rawEntities = await fetchIndex(0);
+      entities.current = rawEntities.map((item: any) => ({
+        ...item,
+        longitude: item[long as keyof typeof item] as number,
+        latitude: item[lat as keyof typeof item] as number,
+        popupMessage: item[tooltip as keyof typeof item] as any,
+      }));
       fetchData(entities.current);
     };
     fetch();
@@ -188,8 +199,6 @@ const MultiMap: FC<IMultiMapProps> = ({
     }
     switch (ce.type) {
       case 'entity': {
-        console.log(datasource, 'datasource');
-
         await updateEntity({ index, datasource: datasource, currentElement: ce, fireEvent });
         break;
       }
@@ -210,31 +219,17 @@ const MultiMap: FC<IMultiMapProps> = ({
         isFlyingRef.current = false;
         return;
       }
-      if (datasource.type === 'scalar' && datasource.dataType === 'array') {
-        const v = await datasource.getValue();
-        if (v) {
-          setValues(
-            v.map((value: any) => ({
-              longitude: +getValueByPath(value, long),
-              latitude: +getValueByPath(value, lat),
-              popupMessage: getValueByPath(value, tooltip),
-            })),
-          );
-        }
-        fetchData(values);
-      } else {
-        const queryStr = `${lat} > :1 AND ${lat} < :2  AND ${long} > :3 AND ${long} < :4`;
-        const placeholders = [
-          bounds.getSouth().toString(),
-          bounds.getNorth().toString(),
-          bounds.getWest().toString(),
-          bounds.getEast().toString(),
-        ];
-        query.entitysel({
-          queryString: queryStr,
-          placeholders,
-        });
-      }
+      const queryStr = `${lat} > :1 AND ${lat} < :2  AND ${long} > :3 AND ${long} < :4`;
+      const placeholders = [
+        bounds.getSouth().toString(),
+        bounds.getNorth().toString(),
+        bounds.getWest().toString(),
+        bounds.getEast().toString(),
+      ];
+      query.entitysel({
+        queryString: queryStr,
+        placeholders,
+      });
     },
     [query, fetchIndex, loaderDatasource],
   );
