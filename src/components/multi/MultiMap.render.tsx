@@ -1,9 +1,4 @@
-import {
-  unsubscribeFromDatasource,
-  useDataLoader,
-  useRenderer,
-  useSources,
-} from '@ws-ui/webform-editor';
+import { useDataLoader, useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -160,6 +155,7 @@ const MultiMap: FC<IMultiMapProps> = ({
               popupMessage: getValueByPath(value, tooltip),
             })),
           );
+          hasInitialFlyRef.current = false;
           fetchData(values);
         }
       }
