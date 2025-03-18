@@ -175,7 +175,7 @@ const SingleMap: FC<ISingleMapProps> = ({
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       {isDataValid(value) ? (
-        <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
+        <div ref={mapRef} style={{ ...size, zIndex: 1, ...style }} />
       ) : (
         <div
           className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg shadow-md"
