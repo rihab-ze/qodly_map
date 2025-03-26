@@ -89,7 +89,13 @@ export default {
     },
   },
   defaultProps: {
-    style: { height: '400px', width: '400px' },
+    style: {
+      height: '400px',
+      width: '400px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     zoom: 10,
     animation: true,
     popup: true,

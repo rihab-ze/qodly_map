@@ -6,7 +6,7 @@ Map Component for Qodly studio using [leaftletJs](https://leafletjs.com) and [Op
 
 The Uni-Marker Map Component is a mapping feature designed to display a single marker on a map, typically representing a specific location or point of interest.
 
-![map](public/uniMarker.png){width=300px height=300px}
+<img src="public/uniMarker.png" width="300" height="300">
 
 | Name            | Type    | Description                                                                |
 | --------------- | ------- | -------------------------------------------------------------------------- |
@@ -21,8 +21,8 @@ The Uni-Marker Map Component is a mapping feature designed to display a single m
 | Name       | Type             | Required | Description                          |
 | ---------- | ---------------- | -------- | ------------------------------------ |
 | DataSource | Object or Entity | Yes      | Your data                            |
-| Longitude  | Text             | yes      | The longitude path in the datasource |
-| Latitde    | Text             | yes      | The latitude path in the datasource  |
+| Longitude  | Number           | yes      | The longitude path in the datasource |
+| Latitde    | Number           | yes      | The latitude path in the datasource  |
 | Tooltip    | Text             | No       | The tooltip path in the datasource   |
 
 Some example of data in the case of Object datasource :
@@ -36,29 +36,31 @@ Some example of data in the case of Object datasource :
 ### Custom Css
 
 When customizing the appearance of the map, you have access to the popup message and icon class :
-![map](public/cssClass.png)
+<img src="public/cssClass.png" width="600" height="400">
 
 ## Multi marker Map
 
 The Multi-Marker Map Component is a feature commonly used in mapping applications to display multiple markers on a single map. It provides a way to visualize various points of interest, locations, or data points on a geographic map.
-![map](public/multiMarker.png){width=300px height=300px}
+<img src="public/multiMarker.png" width="300" height="300">
 
-| Name                  | Type    | Description                                                                |
-| --------------------- | ------- | -------------------------------------------------------------------------- |
-| Zoom                  | Number  | Initial map zoom level                                                     |
-| Map dragging          | Boolean | Whether the map is draggable with mouse touch or not.                      |
-| Popup                 | Boolean | If true, opens a popup with a given message in the given point on the map. |
-| Marker group distance | number  | the distance between the markers of the created group (in Km)              |
-| Marker Icon           | Icon    | the marker icon                                                            |
+| Name                  | Type    | Description                                                                 |
+| --------------------- | ------- | --------------------------------------------------------------------------- |
+| Zoom                  | Number  | Initial map zoom level                                                      |
+| Map dragging          | Boolean | Enables or disables dragging of the map with mouse or touch                 |
+| Animation             | Boolean | Determines whether map view transitions are animated when changing position |
+| Popup                 | Boolean | If true, opens a popup with a given message in the given point on the map.  |
+| Marker group distance | number  | the distance between the markers of the created group (in Km)               |
+| Marker Icon           | Icon    | the marker icon                                                             |
 
 ### DataSource
 
-| Name       | Type                     | Required | Description                          |
-| ---------- | ------------------------ | -------- | ------------------------------------ |
-| DataSource | Array or EntitySelection | Yes      | Your data                            |
-| Longitude  | Text                     | Yes      | The longitude path in the datasource |
-| Latitde    | Text                     | Yes      | The latitude path in the datasource  |
-| Tooltip    | Text                     | No       | The tooltip path in the datasource   |
+| Name             | Type                     | Required | Description                                                                     |
+| ---------------- | ------------------------ | -------- | ------------------------------------------------------------------------------- |
+| DataSource       | Array or EntitySelection | Yes      | Your data                                                                       |
+| Current Position | Object or Entity         | No       | The currently selected pin on the map, representing the user's chosen location. |
+| Longitude        | Number                   | Yes      | The longitude path in the datasource                                            |
+| Latitde          | Number                   | Yes      | The latitude path in the datasource                                             |
+| Tooltip          | Text                     | No       | The tooltip path in the datasource                                              |
 
 Some example of data in the case of Array datasource:
 
