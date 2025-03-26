@@ -44,12 +44,12 @@ const commonSettings: TSetting[] = [
 const dataAccessSettings: TSetting[] = [
   {
     key: 'datasource',
-    label: 'Data Source',
+    label: 'Qodly Source',
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {
     key: 'currentElement',
-    label: 'currentPosition',
+    label: 'current Position',
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {

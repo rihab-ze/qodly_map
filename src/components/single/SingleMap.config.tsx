@@ -57,7 +57,7 @@ export default {
       },
     ],
     datasources: {
-      declarations: (props:any) => {
+      declarations: (props: any) => {
         const { lat, long, datasource = '' } = props;
         const declarations: T4DComponentDatasourceDeclaration[] = [
           { path: datasource, iterable: true },
@@ -86,7 +86,13 @@ export default {
   },
 
   defaultProps: {
-    style: { height: '400px', width: '400px' },
+    style: {
+      height: '400px',
+      width: '400px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     zoom: 10,
     markerDragging: false,
     popup: false,
