@@ -16,16 +16,16 @@ The Uni-Marker Map Component is a mapping feature designed to display a single m
 | Marker dragging | Boolean | Whether the marker is draggable with mouse touch or not.                   |
 | Marker Icon     | Icon    | the marker icon                                                            |
 
-### DataSource
+### QodlySource
 
 | Name       | Type             | Required | Description                          |
 | ---------- | ---------------- | -------- | ------------------------------------ |
-| DataSource | Object or Entity | Yes      | Your data                            |
-| Longitude  | Number           | yes      | The longitude path in the datasource |
-| Latitde    | Number           | yes      | The latitude path in the datasource  |
-| Tooltip    | Text             | No       | The tooltip path in the datasource   |
+| QodlySource | Object or Entity | Yes      | Your data                            |
+| Longitude  | Number           | yes      | The longitude path in the qodlysource |
+| Latitde    | Number           | yes      | The latitude path in the qodlysource  |
+| Tooltip    | Text             | No       | The tooltip path in the qodlysource   |
 
-Some example of data in the case of Object datasource :
+Some example of data in the case of Object qodlysource :
 
 ```
 {"latitude" : 31.792305849269,"longitude" : -7.080168000000015}
@@ -41,6 +41,7 @@ When customizing the appearance of the map, you have access to the popup message
 ## Multi marker Map
 
 The Multi-Marker Map Component is a feature commonly used in mapping applications to display multiple markers on a single map. It provides a way to visualize various points of interest, locations, or data points on a geographic map.
+
 <img src="public/multiMarker.png" width="300" height="300">
 
 | Name                  | Type    | Description                                                                 |
@@ -56,13 +57,13 @@ The Multi-Marker Map Component is a feature commonly used in mapping application
 
 | Name             | Type                     | Required | Description                                                                     |
 | ---------------- | ------------------------ | -------- | ------------------------------------------------------------------------------- |
-| DataSource       | Array or EntitySelection | Yes      | Your data                                                                       |
+| QodlySource       | Array or EntitySelection | Yes      | Your data                                                                       |
 | Current Position | Object or Entity         | No       | The currently selected pin on the map, representing the user's chosen location. |
-| Longitude        | Number                   | Yes      | The longitude path in the datasource                                            |
-| Latitde          | Number                   | Yes      | The latitude path in the datasource                                             |
-| Tooltip          | Text                     | No       | The tooltip path in the datasource                                              |
+| Longitude        | Number                   | Yes      | The longitude path in the qodlysource                                            |
+| Latitde          | Number                   | Yes      | The latitude path in the qodlysource                                             |
+| Tooltip          | Text                     | No       | The tooltip path in the qodlysource                                              |
 
-Some example of data in the case of Array datasource:
+Some example of data in the case of Array qodlysource:
 
 ```
 [{"latitude" : 31.792305849269,"longitude" : -7.080168000000015},{"latitude":51.505,"longitude":-0.09, "popupMessage": '<div><p>This is your location</p></div>'},...]
