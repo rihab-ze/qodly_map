@@ -173,9 +173,13 @@ const SingleMap: FC<ISingleMapProps> = ({
     return typeof obj == 'object' && !Array.isArray(obj) && 'latitude' in obj && 'longitude' in obj;
   }
   return (
-    <div ref={connect} style={style} className={cn(className, classNames)}>
+    <div
+      ref={connect}
+      style={style}
+      className={cn(className, classNames, 'flex items-center justify-center  overflow-hidden')}
+    >
       {isDataValid(value) ? (
-        <div ref={mapRef} style={{ ...size, zIndex: 1, ...style }} />
+        <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
       ) : (
         <div
           className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg shadow-md"

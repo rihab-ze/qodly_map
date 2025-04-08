@@ -55,11 +55,13 @@ const MultiMap: FC<IMultiMapProps> = ({
   }, [zoom, mapDragging, style, iconUrl]);
 
   return (
-    <span ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={{ ...style, zIndex: 1 }}>
-        {' '}
-      </div>
-    </span>
+    <div
+      ref={connect}
+      style={style}
+      className={cn(className, classNames, 'flex items-center justify-center overflow-hidden')}
+    >
+      <div ref={mapRef} style={{ width: '100%', height: '100%', zIndex: 1 }} />
+    </div>
   );
 };
 

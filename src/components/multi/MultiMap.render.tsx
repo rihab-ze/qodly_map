@@ -289,10 +289,10 @@ const MultiMap: FC<IMultiMapProps> = ({
         ref.current = R;
       }}
       style={style}
-      className={cn(className, classNames)}
+      className={cn(className, classNames, 'flex items-center justify-center  overflow-hidden')}
     >
       {isDataValid(values ? values : entities.current) ? (
-        <div ref={mapRef} style={{ ...size, zIndex: 1, ...style }} />
+        <div ref={mapRef} style={{ ...size, zIndex: 1 }} />
       ) : (
         <div
           className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg shadow-md"

@@ -57,8 +57,12 @@ const SingleMap: FC<ISingleMapProps> = ({
   }, [zoom, markerDragging, popup, mapDragging, iconUrl]);
 
   return (
-    <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div ref={mapRef} style={{ ...style, zIndex: 1 }}>
+    <div
+      ref={connect}
+      style={style}
+      className={cn(className, classNames, 'flex items-center justify-center overflow-hidden')}
+    >
+      <div ref={mapRef} style={{ width: '100%', height: '100%', zIndex: 1 }}>
         {' '}
       </div>
     </div>
