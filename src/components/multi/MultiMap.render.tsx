@@ -20,6 +20,7 @@ type LoactionAndPopup = {
 const MultiMap: FC<IMultiMapProps> = ({
   popup,
   zoom,
+  showAllMarkers,
   animation,
   mapDragging,
   distance,
@@ -102,36 +103,31 @@ const MultiMap: FC<IMultiMapProps> = ({
           markers.addLayers(markerList);
           map.current.addLayer(markers);
         }
-        if ((!ce || ce.initialValue === null) && !hasInitialFlyRef.current) {
+        if (!hasInitialFlyRef.current) {
           isFlyingRef.current = true;
           hasInitialFlyRef.current = true;
           if (ce) {
             handleSelectedElementChange({ index: 0 });
           }
-          map.current?.flyTo(
-            [+groups[0][0]?.latitude, +groups[0][0]?.longitude],
-            map.current.getZoom(),
-            { animate: animation },
-          );
+
+          if (showAllMarkers) {
+            const bounds = L.latLngBounds(
+              groups.flat().map(({ latitude, longitude }) => [latitude, longitude]),
+            );
+
+            map.current.fitBounds(bounds, { padding: [50, 50], animate: animation });
+          } else {
+            map.current?.flyTo(
+              [+groups[0][0]?.latitude, +groups[0][0]?.longitude],
+              map.current.getZoom(),
+              { animate: animation },
+            );
+          }
         }
       }
     },
     [map.current, values, entities.current],
   );
-
-  useEffect(() => {
-    if (!ce || (hasInitialFlyRef && datasource.type == 'entitysel')) return;
-
-    const listener = async () => {
-      const v = await ce.getValue();
-      if (v) map.current?.flyTo([+getValueByPath(v, lat), +getValueByPath(v, long)]);
-    };
-    listener();
-    ce.addListener('changed', listener);
-    return () => {
-      ce.removeListener('changed', listener);
-    };
-  }, [ce]);
 
   useEffect(() => {
     if (!datasource) return;
@@ -247,7 +243,7 @@ const MultiMap: FC<IMultiMapProps> = ({
       map.current = L.map(mapRef.current, { dragging: mapDragging }).setView(
         [51.505, -0.09],
         zoom,
-        { animate: animation },
+        { animate: false },
       );
 
       mapRef.current.addEventListener('mousedown', (event) => {

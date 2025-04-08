@@ -6,7 +6,13 @@ const commonSettings: TSetting[] = [
     key: 'zoom',
     label: 'Zoom',
     type: ESetting.NUMBER_FIELD,
-    defaultValue: 10,
+    defaultValue: -1,
+  }, 
+   {
+    key: 'showAllMarkers',
+    label: 'Show All Markers',
+    type: ESetting.CHECKBOX,
+    defaultValue: false,
   },
   {
     key: 'mapDragging',

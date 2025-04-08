@@ -97,6 +97,7 @@ export default {
       alignItems: 'center',
     },
     zoom: 10,
+    showAllMarkers: false,
     animation: true,
     popup: true,
     mapDragging: true,
@@ -107,6 +108,7 @@ export default {
 
 export interface IMultiMapProps extends webforms.ComponentProps {
   zoom: number;
+  showAllMarkers: boolean;
   animation: boolean;
   popup: boolean;
   mapDragging: boolean;
