@@ -47,6 +47,7 @@ The Multi-Marker Map Component is a feature commonly used in mapping application
 | Name                  | Type    | Description                                                                 |
 | --------------------- | ------- | --------------------------------------------------------------------------- |
 | Zoom                  | Number  | Initial map zoom level                                                      |
+| Show All Markers                  | Boolean  | if true it will show all the markers in the map at once                                                     |
 | Map dragging          | Boolean | Enables or disables dragging of the map with mouse or touch                 |
 | Animation             | Boolean | Determines whether map view transitions are animated when changing position |
 | Popup                 | Boolean | If true, opens a popup with a given message in the given point on the map.  |
