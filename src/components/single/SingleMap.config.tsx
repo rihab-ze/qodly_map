@@ -89,9 +89,6 @@ export default {
     style: {
       height: '400px',
       width: '400px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
     },
     zoom: 10,
     markerDragging: false,
