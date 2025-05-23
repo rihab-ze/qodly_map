@@ -63,24 +63,29 @@ export default {
           { path: datasource, iterable: true },
         ];
         if (lat && long) {
-          const { id: ds, namespace } = splitDatasourceID(datasource?.trim()) || {};
+          const { id: ds } = splitDatasourceID(datasource?.trim()) || {};
 
           if (!ds) {
             return;
           }
 
-          const latSrc = `${ds}.[].${lat}`;
+          // const latSrc = `${ds}.[].${lat}`;
+          const { id: latSrc } = splitDatasourceID(lat);
           declarations.push({
-            path: namespace ? `${namespace}:${latSrc}` : latSrc,
+            path: `${datasource}.[].${latSrc}`,
           });
 
-          const longSrc = `${ds}.[].${long}`;
+          // const longSrc = `${ds}.[].${long}`;
+          const { id: longSrc } = splitDatasourceID(long);
           declarations.push({
-            path: namespace ? `${namespace}:${longSrc}` : longSrc,
+            path: `${datasource}.[].${longSrc}`,
           });
-          const tooltipSrc = `${ds}.[].${tooltip}`;
+          // const tooltipSrc = `${ds}.[].${tooltip}`;
+          const { id: tooltipSrc } = splitDatasourceID(tooltip);
+
           declarations.push({
-            path: namespace ? `${namespace}:${tooltipSrc}` : tooltipSrc,
+            // path: namespace ? `${namespace}:${tooltipSrc}` : tooltipSrc,
+            path: `${datasource}.[].${tooltipSrc}`,
           });
         }
         return declarations;
