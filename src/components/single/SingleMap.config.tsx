@@ -78,11 +78,6 @@ export default {
           declarations.push({
             path: `${datasource}.[].${longSrc}`,
           });
-
-          const { id: tooltipSrc } = splitDatasourceID(tooltip);
-          declarations.push({
-            path: `${datasource}.[].${tooltipSrc}`,
-          });
         }
         return declarations;
       },
