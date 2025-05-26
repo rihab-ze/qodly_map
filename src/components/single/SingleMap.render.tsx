@@ -1,4 +1,4 @@
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
+import { splitDatasourceID, useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -33,6 +33,13 @@ const SingleMap: FC<ISingleMapProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPositionChanged, setIsPositionChanged] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
+  const { id: longID } = splitDatasourceID(long);
+  long = longID;
+  const { id: latID } = splitDatasourceID(lat);
+  lat = latID;
+  const { id: tooltipID } = splitDatasourceID(tooltip);
+  tooltip = tooltipID;
+  console.log(long, lat);
 
   const {
     sources: { datasource: ds },
