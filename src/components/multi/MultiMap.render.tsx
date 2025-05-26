@@ -1,4 +1,4 @@
-import { useDataLoader, useRenderer, useSources } from '@ws-ui/webform-editor';
+import { splitDatasourceID, useDataLoader, useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -44,6 +44,12 @@ const MultiMap: FC<IMultiMapProps> = ({
   const map = useRef<L.Map | null>(null);
   const isFlyingRef = useRef(false);
   const hasInitialFlyRef = useRef(false);
+  const { id: longID } = splitDatasourceID(long);
+  long = longID;
+  const { id: latID } = splitDatasourceID(lat);
+  lat = latID;
+  const { id: tooltipID } = splitDatasourceID(tooltip);
+  tooltip = tooltipID;
   const {
     sources: { datasource, currentElement: ce },
   } = useSources({
