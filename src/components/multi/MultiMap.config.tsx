@@ -69,22 +69,18 @@ export default {
             return;
           }
 
-          // const latSrc = `${ds}.[].${lat}`;
           const { id: latSrc } = splitDatasourceID(lat);
           declarations.push({
             path: `${datasource}.[].${latSrc}`,
           });
 
-          // const longSrc = `${ds}.[].${long}`;
           const { id: longSrc } = splitDatasourceID(long);
           declarations.push({
             path: `${datasource}.[].${longSrc}`,
           });
-          // const tooltipSrc = `${ds}.[].${tooltip}`;
-          const { id: tooltipSrc } = splitDatasourceID(tooltip);
 
+          const { id: tooltipSrc } = splitDatasourceID(tooltip);
           declarations.push({
-            // path: namespace ? `${namespace}:${tooltipSrc}` : tooltipSrc,
             path: `${datasource}.[].${tooltipSrc}`,
           });
         }

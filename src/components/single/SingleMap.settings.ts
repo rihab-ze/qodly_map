@@ -50,17 +50,20 @@ const dataAccessSettings: TSetting[] = [
   {
     key: 'long',
     label: 'Longitude',
-    type: ESetting.TEXT_FIELD,
+    type: ESetting.DS_AUTO_SUGGEST,
+    datasourceProperty:'datasource',
   },
   {
     key: 'lat',
     label: 'Latitude',
-    type: ESetting.TEXT_FIELD,
+    type: ESetting.DS_AUTO_SUGGEST,
+    datasourceProperty:'datasource',
   },
   {
     key: 'tooltip',
     label: 'Tooltip',
-    type: ESetting.TEXT_FIELD,
+    type: ESetting.DS_AUTO_SUGGEST,
+    datasourceProperty: 'datasource',
   },
   {
     key: 'serverSideRef',
