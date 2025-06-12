@@ -29,7 +29,10 @@ const SingleMap: FC<ISingleMapProps> = ({
 }) => {
   const { connect } = useRenderer();
   const [value, setValue] = useState<LoactionAndPopup>();
-  const [size, setSize] = useState({ width: style?.width, height: style?.height });
+  const [size, setSize] = useState<{ width: string | number; height: string | number }>({
+    width: '100%',
+    height: '100%',
+  });
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPositionChanged, setIsPositionChanged] = useState(false);
   const ref = useRef<HTMLElement | null>(null);

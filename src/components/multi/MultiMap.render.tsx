@@ -33,9 +33,9 @@ const MultiMap: FC<IMultiMapProps> = ({
   classNames = [],
 }) => {
   const { connect } = useRenderer();
-  const [size, setSize] = useState({
-    width: style?.width ? style.width : '100%',
-    height: style?.height,
+  const [size, setSize] = useState<{ width: string | number; height: string | number }>({
+    width: '100%',
+    height: '100%',
   });
   const ref = useRef<HTMLElement | null>(null);
   const entities = useRef<datasources.IEntity[]>([]);
