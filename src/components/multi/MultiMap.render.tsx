@@ -277,6 +277,9 @@ const MultiMap: FC<IMultiMapProps> = ({
       for (let entry of entries) {
         const { width, height } = entry.contentRect;
         setSize({ width, height });
+        if (map.current) {
+          map.current.invalidateSize();
+        }
       }
     });
 
