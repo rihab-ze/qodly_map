@@ -91,7 +91,12 @@ const MultiMap: FC<IMultiMapProps> = ({
 
             if (groups[i][j].popupMessage && popup) {
               const popupMessage = groups[i][j].popupMessage as HTMLElement;
-              marker.bindPopup(popupMessage, { offset: L.point(3, -10) });
+              marker.bindPopup(popupMessage, {
+                offset: L.point(3, -10),
+                closeOnClick: false,
+                closeButton: true,
+                autoPan: true,
+              });
             }
             markerList.push(marker);
             marker.on('click', async (event) => {
@@ -106,7 +111,8 @@ const MultiMap: FC<IMultiMapProps> = ({
                 );
                 handleSelectedElementChange({ index });
               }
-              map.current?.flyTo([latitude, lng], map.current.getZoom(), { animate: animation });
+              !popup &&
+                map.current?.flyTo([latitude, lng], map.current.getZoom(), { animate: animation });
             });
           }
           markers.addLayers(markerList);
