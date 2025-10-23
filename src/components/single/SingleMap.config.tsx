@@ -59,6 +59,7 @@ export default {
     datasources: {
       declarations: (props: any) => {
         const { lat, long, datasource = '' } = props;
+
         const declarations: T4DComponentDatasourceDeclaration[] = [
           { path: datasource, iterable: true },
         ];
@@ -70,13 +71,15 @@ export default {
           }
 
           const { id: latSrc } = splitDatasourceID(lat);
+
           declarations.push({
-            path: `${datasource}.[].${latSrc}`,
+            path: `${datasource}.${latSrc}`,
           });
 
           const { id: longSrc } = splitDatasourceID(long);
+
           declarations.push({
-            path: `${datasource}.[].${longSrc}`,
+            path: `${datasource}.${longSrc}`,
           });
         }
         return declarations;
