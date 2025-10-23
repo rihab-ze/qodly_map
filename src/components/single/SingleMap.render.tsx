@@ -52,14 +52,27 @@ const SingleMap: FC<ISingleMapProps> = ({
     const listener = async (/* event */) => {
       const v = await ds.getValue();
 
-      if (getValueByPath(v, long) && getValueByPath(v, lat)) {
+      if (ds.type == 'entity') {
+        const longitude = await ds.getValue(long);
+        const latitude = await ds.getValue(lat);
+        const tip = await ds.getValue(tooltip);
+
         setValue({
-          longitude: +getValueByPath(v, long),
-          latitude: +getValueByPath(v, lat),
-          popupMessage: getValueByPath(v, tooltip),
+          longitude: +longitude,
+          latitude: +latitude,
+          popupMessage: tip,
         });
-        setIsLoaded(true);
+      } else {
+        if (getValueByPath(v, long) && getValueByPath(v, lat)) {
+          setValue({
+            longitude: +getValueByPath(v, long),
+            latitude: +getValueByPath(v, lat),
+            popupMessage: getValueByPath(v, tooltip),
+          });
+        }
       }
+
+      setIsLoaded(true);
     };
     listener();
     ds.addListener('changed', listener);
@@ -67,7 +80,7 @@ const SingleMap: FC<ISingleMapProps> = ({
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ds]);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
@@ -182,6 +195,11 @@ const SingleMap: FC<ISingleMapProps> = ({
   function isDataValid(obj: any): obj is LoactionAndPopup {
     return typeof obj == 'object' && !Array.isArray(obj) && 'latitude' in obj && 'longitude' in obj;
   }
+
+  // if (!isLoaded) {
+  //   return 'Loading...';
+  // }
+
   return (
     <div
       ref={connect}
