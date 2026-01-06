@@ -22,7 +22,7 @@
     "@ws-ui/craftjs-core": "^0.2.26",
     "@ws-ui/craftjs-layers": "^0.2.4",
     "@ws-ui/craftjs-utils": "^0.2.3",
-    "@ws-ui/webform-editor": "^1.6.10",
+    "@ws-ui/webform-editor": "^1.10.2",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "react": "^17.0.2",
@@ -30,13 +30,13 @@
   },
   "devDependencies": {
     "@module-federation/vite": "^1.2.6",
-    "@qodly/cli": "^0.4.6",
+    "@qodly/cli": "^0.4.8",
     "@types/react": "^18.2.65",
     "@types/react-dom": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
-    "@vitejs/plugin-react-swc": "^4.1.0",
-    "@ws-ui/vite-plugins": "^1.6.10",
+    "@vitejs/plugin-react-swc": "^4.2.2",
+    "@ws-ui/vite-plugins": "^1.10.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
@@ -46,9 +46,9 @@
     "vite-plugin-css-injected-by-js": "^3.5.2"
   },
   "peerDependencies": {
-    "@ws-ui/code-editor": "^1.6.10",
-    "@ws-ui/icons": "^1.6.10",
-    "@ws-ui/shared": "^1.6.10",
-    "@ws-ui/store": "^1.6.10"
+    "@ws-ui/code-editor": "^1.10.2",
+    "@ws-ui/icons": "^1.10.2",
+    "@ws-ui/shared": "^1.10.2",
+    "@ws-ui/store": "^1.10.2"
   }
 }
